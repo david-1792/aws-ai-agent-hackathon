@@ -1,2 +1,15 @@
-# aws-ai-agent-hackathon
-Submission for the AWS AI Agent Global Hackathon
+# 🧠🩺 **Sana**: an AI-powered mental health screening agent
+
+## 🌎 Overview
+
+## 🏗️ System design
+
+### ☁️ Cloud architecture
+
+### 🎨 User-facing layer
+
+## 🚀 Deployment
+
+### 🛠️ Pre-requisites
+
+## 📄 Resources
