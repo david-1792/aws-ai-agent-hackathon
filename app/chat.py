@@ -12,26 +12,28 @@ from app.utils import create_safe_markdown
 
 class SanaChat:
     def __init__(self) -> None:
-        self.agent_name = 'sana'
         self._init_session_state()
 
     def process_user_message(self, message: str, claims: dict, tokens: dict) -> None:
         st.session_state['messages'].append({'role': 'user', 'content': message})
 
         with st.chat_message('user'):
+            create_safe_markdown(f'<span class="user-bubble">{message}</span>', st)
             st.session_state['pending_assistant'] = True
 
         with st.chat_message('assistant'):
             placeholder = st.empty()
 
-            create_safe_markdown('<span class="thinking-bubble">🧠 ...</span>', placeholder)
+            create_safe_markdown('<span class="thinking-bubble">...</span>', placeholder)
 
             chunk_count: int = 0
             response: str = ''
 
             payload: dict = {
                 'prompt': message,
-                'actor_id': claims.get('sub')
+                'context': {
+                    'city': st.session_state.get('city', 'Ciudad de México')
+                }
             }
 
             for chunk in self.invoke_endpoint(
@@ -40,7 +42,7 @@ class SanaChat:
                 bearer_token=tokens.get('access_token')
             ):
                 chunk = str(chunk)
-                if not chunk.strip():
+                if not chunk:
                     continue
 
                 chunk_count += 1
@@ -48,7 +50,7 @@ class SanaChat:
                 if chunk_count % 3 == 0:
                     response += ''
 
-                create_safe_markdown(f'<div class="assistant-bubble streaming typing-cursor">🧠 {response}</div>', placeholder)
+                create_safe_markdown(f'<div class="assistant-bubble streaming typing-cursor">{response}</div>', placeholder)
                 time.sleep(0.02)
 
             st.session_state['pending_assistant'] = False
@@ -66,13 +68,12 @@ class SanaChat:
 
         for message in messages:
             bubble_class: str = 'user-bubble' if message['role'] == 'user' else 'assistant-bubble'
-            emoji: str = '🧑' if message['role'] == 'user' else '🧠'
 
             with st.chat_message(message['role']):
                 if message['role'] == 'assistant':
-                    create_safe_markdown(f'<div class="{bubble_class}">{emoji} {message["content"]}</div>', st)
+                    create_safe_markdown(f'<div class="{bubble_class}">{message["content"]}</div>', st)
                 else:
-                    create_safe_markdown(f'<span class="{bubble_class}">{emoji} {message["content"]}</span>', st)
+                    create_safe_markdown(f'<span class="{bubble_class}">{message["content"]}</span>', st)
 
     def invoke_endpoint(
         self,
@@ -81,9 +82,7 @@ class SanaChat:
         bearer_token: str,
         endpoint_version: str = 'DEFAULT'
     ) -> Generator[str, None, None]:
-        escaped_arn: str = urllib.parse.quote(st.session_state['agent_arn'], safe='')
-
-        url: str = f'https://bedrock-agentcore.{st.session_state['region']}.amazonaws.com/runtimes/{escaped_arn}/invocations'
+        url: str = st.session_state['agent_url']
 
         params: dict = {'qualifier': endpoint_version}
 
@@ -113,10 +112,6 @@ class SanaChat:
                     line = line[len('data: '):]
                     line = line.replace('"', '')
                     yield line
-                elif line.startswith('tool: '):
-                    line = line[len('tool: '):]
-                    line = line.replace('"', '')
-                    yield f"[TOOL] {line}"
                 elif line:
                     line = line.replace('"', '')
                     if finished:

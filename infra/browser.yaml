@@ -1,0 +1,12 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: AWS
+
+Resources:
+  Type: AWS::BedrockAgentCore::BrowserCustom
+  Name: sana-browser
+  Description: Custom browser for Sana application
+  ExecutionRoleArn: 
+  NetworkConfiguration:
+    NetworkMode: PUBLIC
+  RecordingConfig:
+    Enabled: false

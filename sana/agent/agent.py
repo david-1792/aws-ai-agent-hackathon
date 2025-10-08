@@ -1,27 +1,31 @@
 from pathlib import Path
 from collections.abc import AsyncGenerator
+import uuid
 import yaml
 
+import jwt
+
 from strands import Agent
+from strands.tools.mcp import MCPClient
 from strands.session import SessionManager
 from strands.models import BedrockModel
 
 from bedrock_agentcore.memory.integrations.strands.session_manager import AgentCoreMemorySessionManager
 from bedrock_agentcore.memory.integrations.strands.config import AgentCoreMemoryConfig, RetrievalConfig
 
+from mcp.client.streamable_http import streamablehttp_client
+
 from opentelemetry import baggage, context
 
-import jwt
-
-from agent.core.config import settings
+from sana.core.config import settings
 
 class Sana:
     def __init__(
         self,
-        session_id: str,
-        auth_token: str
+        session_id: str | None,
+        auth_token: str | None
     ) -> None:
-        self.session_id = session_id
+        self.session_id = session_id or str(uuid.uuid4())
         self.auth_token = auth_token
 
         self.tools: list = []
@@ -63,7 +67,27 @@ class Sana:
         )
 
     def _load_tools(self) -> None:
-        pass
+        from strands_tools.current_time import current_time
+        self.tools.append(current_time)
+
+        if settings.AWS_BEDROCK_KNOWLEDGE_BASE_ID:
+            from sana.agent.tools import search
+            self.tools.append(search)
+
+        if settings.AWS_BEDROCK_AGENTCORE_GATEWAY_URL:
+            try:
+                mcp_client = MCPClient(
+                    lambda: streamablehttp_client(
+                        settings.AWS_BEDROCK_AGENTCORE_GATEWAY_URL,
+                        headers={'Authorization': self.auth_token}
+                    )
+                )
+
+                mcp_client.start()
+            except Exception as e:
+                raise RuntimeError(f'failed to initialize MCPClient: {e}')
+            
+            self.tools.extend(mcp_client.list_tools_sync())
     
     def _load_observability(self) -> None:
         if not settings.OTEL_ENABLED:
@@ -133,10 +157,6 @@ class Sana:
                 if 'data' in event:
                     if using_tool:
                         using_tool = False
-                    yield f'data: {event["data"]}'
-                elif 'current_tool_use' in event:
-                    if not using_tool:
-                        using_tool = True
-                        yield f'tool: {event["current_tool_use"]["name"]}'
+                    yield event["data"]
         except Exception as e:
             yield f'error: {e}'

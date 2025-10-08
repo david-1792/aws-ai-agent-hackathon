@@ -6,7 +6,7 @@ class Settings(BaseSettings):
     AWS_REGION: str = 'us-east-1'
 
     ## AWS Bedrock
-    AWS_BEDROCK_MODEL_ID: str = 'amazon.nova-lite-v1:0'
+    AWS_BEDROCK_MODEL_ID: str = 'amazon.nova-micro-v1:0'
     AWS_BEDROCK_TEMPERATURE: float = 0.0
     AWS_BEDROCK_MAX_TOKENS: int = 2048
     
@@ -21,7 +21,8 @@ class Settings(BaseSettings):
     ### Memory
     AWS_BEDROCK_AGENTCORE_MEMORY_ID: str | None = None
 
-    ### Browser tool
+    ### Gateway
+    AWS_BEDROCK_AGENTCORE_GATEWAY_URL: str | None = None
 
     # Observability
     ## OpenTelemetry

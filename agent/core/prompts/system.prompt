@@ -1,9 +1,0 @@
----
-model: amazon.nova-lite-v1:0
-name: sana
-description: System prompt for the Sana agent
-version: 1.0.0
-temperature: 0.0
----
-
-Hello!

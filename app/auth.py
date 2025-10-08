@@ -15,10 +15,10 @@ from utils.aws import get_ssm_parameter
 
 class SanaAuth:
     def __init__(self) -> None:
-        self.cognito_domain: str = get_ssm_parameter('/sana/agentcore/cognito-domain')
-        self.client_id: str = get_ssm_parameter('/sana/agentcore/client-id')
+        self.cognito_domain: str = get_ssm_parameter('/sana/auth/cognito-domain')
+        self.client_id: str = get_ssm_parameter('/sana/auth/client-id')
 
-        self.redirect_url: str = 'https://localhost:8501'
+        self.redirect_url: str = 'http://localhost:8501'
         self.scopes: list[str] = ['openid', 'email']
         self.cookies = CookieController('cookies')
 
@@ -51,20 +51,20 @@ class SanaAuth:
             'state': state
         }
 
-        return f'https://{self.cognito_domain}/oauth2/authorize?{urlencode(params)}'
+        return f'{self.cognito_domain}/oauth2/authorize?{urlencode(params)}'
 
     def handle_oauth_callback(self) -> None:
         query_params: dict = st.query_params
 
-        if self.cookies.get('tokens'):
+        if not (received_state := st.query_params.get('state')):
             return
         
         if not (code := query_params.get('code')):
             return
-
-        if not (received_state := query_params.get('state')):
+        
+        if self.cookies.get('tokens'):
             return
-            
+        
         code_verifier: str = self.cookies.get('code_verifier')
         state: str = self.cookies.get('oauth_state')
 
@@ -74,7 +74,7 @@ class SanaAuth:
         if received_state != state:
             st.stop()
 
-        token_url: str = f'https://{self.cognito_domain}/oauth2/token'
+        token_url: str = f'{self.cognito_domain}/oauth2/token'
         data: dict = {
             'grant_type': 'authorization_code',
             'client_id': self.client_id,
@@ -82,7 +82,7 @@ class SanaAuth:
             'redirect_uri': self.redirect_url,
             'code_verifier': code_verifier,
         }
-    
+
         headers: dict = {'Content-Type': 'application/x-www-form-urlencoded'}
         response = requests.post(token_url, data=data, headers=headers)
 
@@ -134,7 +134,7 @@ class SanaAuth:
             'logout_uri': self.redirect_url,
         }
 
-        logout_url: str = f'https://{self.cognito_domain}/logout?{urlencode(params)}'
+        logout_url: str = f'{self.cognito_domain}/logout?{urlencode(params)}'
 
         st.markdown(
             f'<meta http-equiv="refresh" content="0;url={logout_url}">',

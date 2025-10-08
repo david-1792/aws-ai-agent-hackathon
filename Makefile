@@ -1,2 +1,5 @@
 web-app:
-	uv run streamlit run app/main.py
+	uv run python -m streamlit run app.py
+
+web-app-local:
+	uv run python -m streamlit run app.py -- --local
