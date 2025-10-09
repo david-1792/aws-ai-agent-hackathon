@@ -1,14 +1,26 @@
 # 🧠🩺 **Sana**: an AI-powered mental health screening agent
 
 ## Table of contents
-- [Overview](#-overview)
-    - [Core ideas](#-core-ideas)
-- [System design](#️-system-design)
-    - [Cloud architecture](#️-cloud-architecture)
-    - [User-facing layer](#-user-facing-layer)
-- [Deployment](#-deployment)
-    - [Pre-requisites](#️-pre-requisites)
-- [Resources and references](#-resources-and-references)
+- [🧠🩺 **Sana**: an AI-powered mental health screening agent](#-sana-an-ai-powered-mental-health-screening-agent)
+  - [Table of contents](#table-of-contents)
+  - [🌎 Overview](#-overview)
+    - [💡 Core ideas](#-core-ideas)
+  - [🏗️ System architecture](#️-system-architecture)
+    - [Agent](#agent)
+    - [Access control](#access-control)
+    - [Knowledge bases](#knowledge-bases)
+    - [Tools](#tools)
+      - [Browser control](#browser-control)
+      - [MCP](#mcp)
+      - [API integrations](#api-integrations)
+      - [Browser access](#browser-access)
+    - [Memory](#memory)
+      - [Privacy-preservation](#privacy-preservation)
+    - [Observability](#observability)
+    - [🎨 User-facing layer](#-user-facing-layer)
+  - [🚀 Deployment](#-deployment)
+    - [🛠️ Pre-requisites](#️-pre-requisites)
+  - [📄 Resources and references](#-resources-and-references)
 
 ## 🌎 Overview
 Mental health.
@@ -60,6 +72,7 @@ A vital part of the system is to detect high risk cases and forward contact info
 The free sandbox for this API contains hotlines for the US and New Zealand only, but with full access it could be expanded to include more countries and languages.
 
 #### Browser access
+Amazon Nova Act is an AI model (currently in research preview), specifically trained to perform actions within a web browser. 
 
 ### Memory
 
