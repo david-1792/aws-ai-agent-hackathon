@@ -1,5 +1,4 @@
 import uuid
-import urllib
 import time
 
 from collections.abc import Generator
@@ -7,7 +6,7 @@ from collections.abc import Generator
 import requests
 import streamlit as st
 
-from utils.aws import get_region
+from app.config import settings
 from app.utils import create_safe_markdown
 
 class SanaChat:
@@ -31,7 +30,7 @@ class SanaChat:
 
             payload: dict = {
                 'prompt': message,
-                'context': {
+                'actor': {
                     'city': st.session_state.get('city', 'Ciudad de México')
                 }
             }
@@ -82,8 +81,6 @@ class SanaChat:
         bearer_token: str,
         endpoint_version: str = 'DEFAULT'
     ) -> Generator[str, None, None]:
-        url: str = st.session_state['agent_url']
-
         params: dict = {'qualifier': endpoint_version}
 
         headers: dict = {
@@ -94,7 +91,7 @@ class SanaChat:
 
         try:
             response = requests.post(
-                url=url,
+                url=settings.AWS_AGENTCORE_RUNTIME_URL,
                 params=params,
                 headers=headers,
                 json=payload,
@@ -124,12 +121,6 @@ class SanaChat:
     def _init_session_state(self) -> None:
         if 'session_id' not in st.session_state:
             st.session_state['session_id'] = str(uuid.uuid4())
-
-        if 'agent_arn' not in st.session_state:
-            st.session_state['agent_arn'] = None
-
-        if 'region' not in st.session_state:
-            st.session_state['region'] = get_region()
 
         if 'messages' not in st.session_state:
             st.session_state['messages'] = []

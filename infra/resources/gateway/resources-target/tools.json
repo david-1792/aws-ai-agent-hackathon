@@ -1,0 +1,20 @@
+[
+  {
+    "name": "search-resources",
+    "description": "Obtain a list of relevant mental health resources based on a search query.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "Search query to find relevant mental health resources."
+        },
+        "limit": {
+          "type": "integer",
+          "description": "Maximum number of resources to return. Default is 5."
+        }
+      },
+      "required": ["query"]
+    }
+  }
+]

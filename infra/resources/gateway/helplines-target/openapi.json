@@ -1,0 +1,251 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "ThroughLine",
+    "version": "1.0.0",
+    "description": "ThroughLine API for accessing mental health helplines."
+  },
+  "servers": [
+    {
+      "url": "https://api.throughlinecare.com"
+    }
+  ],
+  "paths": {
+    "/v1/countries": {
+      "get": {
+        "operationId": "getCountries",
+        "summary": "Get a list of countries which have helplines",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "countries": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string"
+                          },
+                          "code": {
+                            "type": "string"
+                          },
+                          "emergencyNumber": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/topics": {
+      "get": {
+        "operationId": "getTopics",
+        "summary": "Get a list of the possible helpline topics",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "topics": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string"
+                          },
+                          "code": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/helplines": {
+      "get": {
+        "operationId": "getHelplines",
+        "summary": "Get a list of helplines by country and optional filters",
+        "parameters": [
+          {
+            "name": "country_code",
+            "in": "query",
+            "description": "Country of the helpline (in ISO 3166-1 alpha-2 format). Only US and NZ are supported. Use 'US' if the country is not supported.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "topic",
+            "in": "query",
+            "description": "Optional parameter that filters the helplines based on a topic. The value must be the 'name' parameter of a topic returned by the /topics endpoint.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "specialty",
+            "in": "query",
+            "description": "Optional parameter that filters the helplines based on a specialty. Supported values are 'Everyone', 'Deaf & HOH', 'Youth', 'Adults', 'Seniors' and 'LGBTQ+'.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "contact_method",
+            "in": "query",
+            "description": "Optional parameter that filters helplines based on a supported contact method. Supported values are 'phone', 'chat', 'sms' and 'whatsapp'.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Optional parameter that specfies the maximum number of helplines to return. Defaults to 20.",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "helplines": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "website": {
+                            "type": "string"
+                          },
+                          "country": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string"
+                              },
+                              "code": {
+                                "type": "string"
+                              },
+                              "emergencyNumber": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "timezone": {
+                            "type": "string"
+                          },
+                          "topics": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "supported_languages": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "specialties": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "supportTypes": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "hours": {
+                            "type": "object",
+                            "properties": {
+                              "alwaysOpen": {
+                                "type": "boolean"
+                              },
+                              "periods": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "day": {
+                                      "type": "integer"
+                                    },
+                                    "open": {
+                                      "type": "string"
+                                    },
+                                    "close": {
+                                      "type": "string"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "phoneNumber": {
+                            "type": "string"
+                          },
+                          "smsNumber": {
+                            "type": "string"
+                          },
+                          "webChatUrl": {
+                            "type": "string"
+                          },
+                          "whatsappUrl": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,16 +1,21 @@
+from typing import Annotated
+
 import boto3
-from strands.tools import tool
+from pydantic import BaseModel, Field
+from pydantic_settings import BaseSettings
 
-from sana.core.config import settings
+class Settings(BaseSettings):
+    AWS_BEDROCK_KNOWLEDGE_BASE_ID: str
 
-@tool
-def search(
+settings = Settings()
+
+class Resource(BaseModel):
+    url: Annotated[str, Field(...)]
+
+def search_resources(
     query: str,
-    max_results: int = 3
-) -> list[str]:
-    """
-    """
-
+    limit: int = 5
+) -> list[Resource]:
     url_set: set[str] = set()
     bedrock = boto3.client('bedrock-agent-runtime')
 
@@ -19,10 +24,10 @@ def search(
         params: dict = {
             'knowledgeBaseId': settings.AWS_BEDROCK_KNOWLEDGE_BASE_ID,
             'retrievalQuery': {'text': query},
-            'maxResults': max_results,
+            'maxResults': limit,
             'retrievalConfiguration': {
                 'vectorSearchConfiguration': {
-                    'numberOfResults': max_results
+                    'numberOfResults': limit
                 }
             }
         }
@@ -39,9 +44,18 @@ def search(
 
         for document in response['retrievalResults']:
             url_set.add(document['metadata']['x-amz-bedrock-kb-source-uri'])
-            if len(url_set) >= max_results:
+            if len(url_set) >= limit:
                 done = True
                 break
 
-    return list(url_set)
-
+    return [Resource(url=url) for url in list(url_set)]
+        
+def handler(event: dict, context: dict):    
+    full_tool_name: str = context.client_context.custom['bedrockAgentCoreToolName']
+    tool_name: str = full_tool_name.split('___')[-1]
+    
+    match tool_name:
+        case 'search-resources':
+            return search_resources(**event)
+        case _:
+            return {'error': f'Unknown tool: {tool_name}'}

@@ -1,5 +1,6 @@
 import base64
 import hashlib
+import logging
 import json
 import uuid
 import jwt
@@ -11,14 +12,12 @@ import requests
 import streamlit as st
 from streamlit_cookies_controller import CookieController
 
-from utils.aws import get_ssm_parameter
+from app.config import settings
+
+logger = logging.getLogger(__name__)
 
 class SanaAuth:
     def __init__(self) -> None:
-        self.cognito_domain: str = get_ssm_parameter('/sana/auth/cognito-domain')
-        self.client_id: str = get_ssm_parameter('/sana/auth/client-id')
-
-        self.redirect_url: str = 'http://localhost:8501'
         self.scopes: list[str] = ['openid', 'email']
         self.cookies = CookieController('cookies')
 
@@ -43,26 +42,29 @@ class SanaAuth:
 
         params: dict = {
             'response_type': 'code',
-            'client_id': self.client_id,
-            'redirect_uri': self.redirect_url,
+            'client_id': settings.AWS_COGNITO_APP_CLIENT_ID,
+            'redirect_uri': settings.AWS_COGNITO_REDIRECT_URI,
             'scope': ' '.join(self.scopes),
             'code_challenge_method': 'S256',
             'code_challenge': challenge,
             'state': state
         }
 
-        return f'{self.cognito_domain}/oauth2/authorize?{urlencode(params)}'
+        return f'{settings.AWS_COGNITO_DOMAIN}/oauth2/authorize?{urlencode(params)}'
 
     def handle_oauth_callback(self) -> None:
         query_params: dict = st.query_params
 
-        if not (received_state := st.query_params.get('state')):
+        if not (received_state := query_params.get('state')):
+            logger.warning('No state parameter in query params')
             return
         
         if not (code := query_params.get('code')):
+            logger.warning('No code parameter in query params')
             return
         
         if self.cookies.get('tokens'):
+            logger.warning('User is already authenticated')
             return
         
         code_verifier: str = self.cookies.get('code_verifier')
@@ -74,12 +76,12 @@ class SanaAuth:
         if received_state != state:
             st.stop()
 
-        token_url: str = f'{self.cognito_domain}/oauth2/token'
+        token_url: str = f'{settings.AWS_COGNITO_DOMAIN}/oauth2/token'
         data: dict = {
             'grant_type': 'authorization_code',
-            'client_id': self.client_id,
+            'client_id': settings.AWS_COGNITO_APP_CLIENT_ID,
             'code': code,
-            'redirect_uri': self.redirect_url,
+            'redirect_uri': settings.AWS_COGNITO_REDIRECT_URI,
             'code_verifier': code_verifier,
         }
 
@@ -134,7 +136,7 @@ class SanaAuth:
             'logout_uri': self.redirect_url,
         }
 
-        logout_url: str = f'{self.cognito_domain}/logout?{urlencode(params)}'
+        logout_url: str = f'{settings.AWS_COGNITO_DOMAIN}/logout?{urlencode(params)}'
 
         st.markdown(
             f'<meta http-equiv="refresh" content="0;url={logout_url}">',
