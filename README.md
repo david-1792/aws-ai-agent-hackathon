@@ -19,6 +19,8 @@
     - [🎨 User-facing layer](#-user-facing-layer)
   - [🚀 Deployment](#-deployment)
     - [⏮️ Pre-requisites](#️-pre-requisites)
+    - [Running the scripts](#running-the-scripts)
+    - [Finishing up the configuration](#finishing-up-the-configuration)
   - [📄 Resources and references](#-resources-and-references)
 
 ## 🌎 Overview
@@ -94,5 +96,13 @@ Since both the memory and the logs/traces can contain very sensible information,
 ## 🚀 Deployment
 
 ### ⏮️ Pre-requisites
+- Turn on Transaction Search in AWS CloudWatch
 
+### Running the scripts
+
+### Finishing up the configuration
+- Clone the GitHub repo into the Lightsail instance
+- 
+- Add the Lightsail instance static IP address to the Cognito web app client allowed callback and logout URLs
+- Create a managed login style and assign it to the web app client
 ## 📄 Resources and references

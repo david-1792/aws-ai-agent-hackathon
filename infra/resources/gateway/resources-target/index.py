@@ -1,30 +1,31 @@
-from typing import Annotated
+from typing import TypedDict
+import os
 
 import boto3
-from pydantic import BaseModel, Field
-from pydantic_settings import BaseSettings
 
-class Settings(BaseSettings):
-    AWS_BEDROCK_KNOWLEDGE_BASE_ID: str
+bedrock = boto3.client('bedrock-agent-runtime')
 
-settings = Settings()
+try:
+    AWS_BEDROCK_KNOWLEDGE_BASE_ID = os.environ['AWS_BEDROCK_KNOWLEDGE_BASE_ID']
+except KeyError as e:
+    raise RuntimeError(f'Missing environment variable: {e}')
 
-class Resource(BaseModel):
-    url: Annotated[str, Field(...)]
+class Resource(TypedDict):
+    url: str
+
+class ResourceList(TypedDict):
+    resources: list[Resource]
 
 def search_resources(
     query: str,
     limit: int = 5
-) -> list[Resource]:
+) -> ResourceList:
     url_set: set[str] = set()
-    bedrock = boto3.client('bedrock-agent-runtime')
 
-    done: bool = False
-    while not done:
+    for _ in range(limit):
         params: dict = {
-            'knowledgeBaseId': settings.AWS_BEDROCK_KNOWLEDGE_BASE_ID,
+            'knowledgeBaseId': AWS_BEDROCK_KNOWLEDGE_BASE_ID,
             'retrievalQuery': {'text': query},
-            'maxResults': limit,
             'retrievalConfiguration': {
                 'vectorSearchConfiguration': {
                     'numberOfResults': limit
@@ -45,12 +46,14 @@ def search_resources(
         for document in response['retrievalResults']:
             url_set.add(document['metadata']['x-amz-bedrock-kb-source-uri'])
             if len(url_set) >= limit:
-                done = True
                 break
+        else:
+            continue
+        break
 
-    return [Resource(url=url) for url in list(url_set)]
+    return ResourceList(resources=[Resource(url=url) for url in list(url_set)])
         
-def handler(event: dict, context: dict):    
+def handler(event: dict, context: dict):
     full_tool_name: str = context.client_context.custom['bedrockAgentCoreToolName']
     tool_name: str = full_tool_name.split('___')[-1]
     

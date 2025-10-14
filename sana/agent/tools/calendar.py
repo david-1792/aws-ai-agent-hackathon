@@ -1,3 +1,4 @@
+from typing import Any
 from strands.tools import tool
 
 from google.oauth2.credentials import Credentials
@@ -9,6 +10,14 @@ from sana.core.context import SanaContext
 
 class GoogleCalendarTools():
     def __init__(self) -> None:
+        self.credentials: Credentials | None = None
+        self.calendar: Any = None
+
+    @property
+    def tools(self) -> list:
+        return [self.create_calendar_event, self.get_free_timeslots]
+    
+    def _authenticate(self) -> None:
         if not (access_token := SanaContext.get_google_token()):
             try:
                 access_token: str = get_google_token()
@@ -21,10 +30,6 @@ class GoogleCalendarTools():
         self.credentials = Credentials(token=access_token, scopes=GOOGLE_SCOPES)
         self.calendar = build('calendar', 'v3', credentials=self.credentials)
 
-    @property
-    def tools(self) -> list:
-        return [self.create_calendar_event, self.get_free_timeslots]
-    
     @tool
     async def create_calendar_event(
         self,
@@ -43,6 +48,9 @@ class GoogleCalendarTools():
             timezone (str): The timezone for the event (default is 'UTC').
         """
 
+        if not self.calendar or not self.credentials:
+            self._authenticate()
+            
         event = {
             'summary': summary,
             'description': description,
@@ -75,6 +83,10 @@ class GoogleCalendarTools():
             to_time (str): The end time in RFC3339 format (e.g., '2023-10-01T17:00:00Z').
             timezone (str): The timezone for the query (default is 'UTC').
         """
+
+        if not self.calendar or not self.credentials:
+            self._authenticate()
+            
         try:
             body: dict = {
                 "timeMin": from_time,

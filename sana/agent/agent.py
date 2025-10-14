@@ -80,7 +80,7 @@ class Sana:
             logger.warning('No Nova Act API key configured, skipping therapists tool setup...')
 
         # Calendar management tool
-        if not settings.GOOGLE_OAUTH_PROVIDER_NAME:
+        if settings.GOOGLE_OAUTH_PROVIDER_NAME:
             from sana.agent.tools.calendar import GoogleCalendarTools
             calendar = GoogleCalendarTools()
             self.tools.extend(calendar.tools)
@@ -122,7 +122,8 @@ class Sana:
         
         # Long-term memory configuration
         namespace_config: dict = {
-            f'/summary/{self.actor_id_hash}/{self.session_id}': RetrievalConfig(top_k=3)
+            '/summary/{actorId}/{sessionId}': RetrievalConfig(top_k=3),
+            '/preferences/{actorId}': RetrievalConfig(top_k=3),
         }
 
         memory_config = AgentCoreMemoryConfig(

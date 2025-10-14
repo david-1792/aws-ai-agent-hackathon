@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     ENVIRONMENT: Literal['local', 'prod'] = 'local'
 
     # Amazon Web Services
-    AWS_REGION: str = 'us-east-1'
+    AWS_REGION: str
 
     ## AWS Bedrock
     AWS_BEDROCK_MODEL_ID: str = 'us.anthropic.claude-3-7-sonnet-20250219-v1:0'
@@ -26,7 +26,8 @@ class Settings(BaseSettings):
         ### Gateway
     AWS_BEDROCK_AGENTCORE_GATEWAY_URL: str | None = None
     AWS_BEDROCK_AGENTCORE_GATEWAY_OAUTH_PROVIDER_NAME: str | None = None
-
+    AWS_BEDROCK_AGENTCORE_GATEWAY_OAUTH_SCOPES: list[str] = []
+    
     ## AWS Nova
     AWS_NOVA_ACT_API_KEY: str | None = None
     
@@ -44,7 +45,7 @@ class Settings(BaseSettings):
 
     # Load .env file
     model_config = SettingsConfigDict(
-        env_file='.env', 
+        env_file='sana/.env', 
         env_file_encoding='utf-8',
         extra='ignore'
     )

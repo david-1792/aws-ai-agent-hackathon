@@ -3,11 +3,9 @@ from bedrock_agentcore.identity import requires_access_token
 from sana.core.config import settings
 from sana.core.context import SanaContext
 
-AGENTCORE_GATEWAY_SCOPES: list[str] = ['sana-agentcore-gateway/invoke']
-
 @requires_access_token(
     provider_name=settings.AWS_BEDROCK_AGENTCORE_GATEWAY_OAUTH_PROVIDER_NAME,
-    scopes=AGENTCORE_GATEWAY_SCOPES,
+    scopes=settings.AWS_BEDROCK_AGENTCORE_GATEWAY_OAUTH_SCOPES,
     auth_flow='M2M'
 )
 def get_gateway_token(access_token: str) -> str:

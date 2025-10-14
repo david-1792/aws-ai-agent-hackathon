@@ -1,28 +1,26 @@
 [project]
 name = "sana"
 version = "0.1.0"
-description = "An AI-powered mental health screening agent"
+description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "aws-opentelemetry-distro>=0.12.1",
-    "bedrock-agentcore-starter-toolkit>=0.1.19",
     "bedrock-agentcore[strands-agents]>=0.1.7",
     "boto3>=1.40.46",
     "geopy>=2.4.1",
     "google-api-python-client>=2.184.0",
     "google-auth-oauthlib>=1.2.2",
     "nova-act>=2.1.36.0",
+    "pycountry>=24.6.1",
     "pydantic-extra-types>=2.10.6",
     "pydantic-settings>=2.11.0",
-    "pyjwt>=2.10.1",
     "pyyaml>=6.0.3",
-    "strands-agents>=1.10.0",
+    "requests>=2.32.5",
     "strands-agents-tools>=0.2.9",
+    "strands-agents[otel]>=1.10.0",
     "streamlit>=1.50.0",
     "streamlit-cookies-controller>=0.0.4",
-    "streamlit-geolocation>=0.0.10",
     "streamlit-js-eval>=0.1.7",
-    "timezonefinder[numba]>=8.1.0",
-    "tzwhere>=3.0.3",
+    "timezonefinder>=8.1.0",
 ]

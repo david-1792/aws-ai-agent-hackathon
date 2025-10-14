@@ -26,7 +26,7 @@ def main() -> None:
         render_login_interface(auth)
 
 def render_main_interface(auth: SanaAuth, chat: SanaChat) -> None:
-    st.title('🧠🩺 Sana')
+    st.sidebar.title('🧠🩺 Sana')
 
     if st.sidebar.button('Logout'):
         auth.logout()
@@ -42,7 +42,7 @@ def render_main_interface(auth: SanaAuth, chat: SanaChat) -> None:
             lng: float = geolocation['coords']['longitude']
 
             if (timezone := timezone_at(lat=lat, lng=lng)):
-                st.session.state['timezone'] = timezone
+                st.session_state['timezone'] = timezone
 
             if (location := geolocator.reverse(f'{lat}, {lng}')):
                 address: dict = location.raw.get('address', {})
