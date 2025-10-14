@@ -15,6 +15,12 @@ def main() -> None:
         layout='wide',
     )
 
+    try:
+        with open('.streamlit/style.css') as f:
+            st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+    except FileNotFoundError:
+        pass
+
     auth = SanaAuth()
     chat = SanaChat()
 
@@ -26,34 +32,41 @@ def main() -> None:
         render_login_interface(auth)
 
 def render_main_interface(auth: SanaAuth, chat: SanaChat) -> None:
-    st.sidebar.title('🧠🩺 Sana')
+    with st.sidebar:
+        st.title('🧠🩺 Sana')
+        st.markdown('---')
 
-    if st.sidebar.button('Logout'):
-        auth.logout()
+        st.subheader('⚙️ Settings')
+        allow_location = st.checkbox('📍 Allow location access')
+
+        if allow_location:
+            if (geolocation := get_geolocation()):
+                lat: float = geolocation['coords']['latitude']
+                lng: float = geolocation['coords']['longitude']
+
+                if (timezone := timezone_at(lat=lat, lng=lng)):
+                    st.session_state['timezone'] = timezone
+
+                if (location := geolocator.reverse(f'{lat}, {lng}')):
+                    address: dict = location.raw.get('address', {})
+                    if (country := address.get('country_code')) == 'us':
+                        st.session_state['country'] = country.upper()
+                        st.session_state['zip_code'] = address.get('postcode', '10001')
+                    else:
+                        st.warning('Your location is outside the US. We will use a default location of New York for location-based services.')
+                        st.session_state['country'] = 'US'
+                        st.session_state['zip_code'] = '10001'
+
+        st.markdown('<br><br>', unsafe_allow_html=True)
+        st.markdown('---')
+        if st.button('🚪 Logout', use_container_width=True, type='secondary'):
+            auth.logout()
 
     tokens: dict = auth.get_tokens()
     claims: dict = auth.get_user_claims()
 
     chat.display_conversation()
 
-    if st.sidebar.checkbox('📍 Use my location'):
-        if (geolocation := get_geolocation()):
-            lat: float = geolocation['coords']['latitude']
-            lng: float = geolocation['coords']['longitude']
-
-            if (timezone := timezone_at(lat=lat, lng=lng)):
-                st.session_state['timezone'] = timezone
-
-            if (location := geolocator.reverse(f'{lat}, {lng}')):
-                address: dict = location.raw.get('address', {})
-                if (country := address.get('country_code')) == 'us':
-                    st.session_state['country'] = country.upper()
-                    st.session_state['zip_code'] = address.get('postcode', '10001')
-                else:
-                    st.sidebar.warning('Your location is outside the US. We will use a default location of New York for location-based services.')
-                    st.session_state['country'] = 'US'
-                    st.session_state['zip_code'] = '10001'
-    
     if prompt := st.chat_input('What are you feeling?'):
         chat.process_user_message(prompt, claims, tokens)
 
