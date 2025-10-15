@@ -33,7 +33,7 @@ def main() -> None:
 
 def render_main_interface(auth: SanaAuth, chat: SanaChat) -> None:
     with st.sidebar:
-        st.image('app/static/logo.png', use_container_width=True)
+        st.image('app/static/logo.png', width='stretch')
         st.markdown(
             '<h1 style="text-align: center;">Sana</h1>',
             unsafe_allow_html=True,
