@@ -89,7 +89,7 @@ def main() -> None:
     )
 
     memory_id: str = memory['memory']['id']
-
+    memory_arn: str = memory['memory']['arn']
     print(f'Created AgentCore Memory: {memory_id}')
 
     # AgentCore Identity
@@ -444,6 +444,7 @@ def main() -> None:
     )
 
     guardrail_id: str = guardrails['guardrailId']
+    guardrail_arn: str = guardrails['guardrailArn']
 
     print(f'Created guardrail: {guardrail_id}')
 
@@ -784,6 +785,37 @@ def main() -> None:
                         'ecr:GetAuthorizationToken',
                     ],
                     'Resource': ['*']
+                },
+                {
+                    'Effect': 'Allow',
+                    'Action': [
+                        'bedrock-agentcore:GetResourceOauth2Token',
+				        'secretsmanager:GetSecretValue',
+                    ],
+                    'Resource': ['*']
+                },
+                {
+                    'Effect': 'Allow',
+                    'Action': [
+                        'bedrock-agentcore:StartBrowserSession',
+				        'bedrock-agentcore:StopBrowserSession',
+                    ],
+                    'Resource': ['*']
+                },
+                {
+                    "Effect": "Allow",
+                    "Action": [
+                        "bedrock:ApplyGuardrail"
+                    ],
+                    "Resource": [guardrail_arn]
+                },
+                {
+                    "Effect": "Allow",
+                    "Action": [
+                        "bedrock-agentcore:ListEvents",
+                        "bedrock-agentcore:CreateEvent"
+                    ],
+                    "Resource": [memory_arn]
                 },
                 {
                     'Effect': 'Allow',

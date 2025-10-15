@@ -76,11 +76,11 @@ def search_therapists(
                            This list must contain less than 3 topics long. Choose ONLY the most relevant topics for the user. Do not include topics that are not available or that are not directly related to the user.
         insurance (str | None): Insurance provider to filter therapists by.
         needs_medication_management (bool): Whether the user needs medication management.
-        therapist_gender_preference (string or None): Preferred gender of the therapist. Leave as None for no preference.
+        therapist_gender_preference (string | None): Preferred gender of the therapist. Leave as None for no preference.
                                                      Possible values: ['female', 'male', 'non-binary', 'transgender']
-        therapist_ethnicity_preference (string or None): Preferred ethnicity of the therapist. Leave as None for no preference.
+        therapist_ethnicity_preference (string | None): Preferred ethnicity of the therapist. Leave as None for no preference.
                                                         Possible values: ['asian', 'black', 'hispanic', 'white']
-        meeting_type_preference (str): Preferred meeting type. Leave as None for no preference.
+        meeting_type_preference (str | None): Preferred meeting type. Leave as None for no preference.
                                        Possible values: ['in person', 'remote']
         limit (int): Maximum number of therapists to return. Default is 3.
     Returns:

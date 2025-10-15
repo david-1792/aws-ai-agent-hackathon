@@ -24,7 +24,8 @@
   - [🚀 Deployment](#-deployment)
     - [⏮️ Pre-requisites](#️-pre-requisites)
     - [🏃 Running the scripts](#-running-the-scripts)
-    - [🏁 Finishing up the configuration](#-finishing-up-the-configuration)
+    - [🏠 Running locally](#-running-locally)
+    - [🏁 Remote deployment](#-remote-deployment)
   - [📄 Resources and references](#-resources-and-references)
 
 ## 🌎 Overview
@@ -131,6 +132,7 @@ To do this, go to the AWS Console and access the ECR service to find the reposit
 Then, follow the instructions to push the Docker image to the repository. Commands should be run from the `sana` folder.
 
 ### 🏠 Running locally
+First, create a `.env` file in the `app` folder, based on the output 
 To run the Streamlit app locally, run the following command from the root of the repository:
 
 ```bash
@@ -139,12 +141,12 @@ uv run streamlit run sana/app.py
 
 This will start the Streamlit app and you can access it at `http://localhost:8501`.
 
-### 🏁 Finishing up the configuration
-After the deployment is finished, there are a few manual steps that need to be done to finish the configuration:
-- Clone the GitHub repo into the Lightsail instance
-- Initialize the Streamlit app in the Lightsail instance (on port 80)
-- Add the Lightsail instance static IP address to the Cognito web app client allowed callback and logout URLs
-- Create a managed login style and assign it to the web app client
+### 🏁 Remote deployment
+After the deployment was finished, the Lightsail instance was configured to run the Streamlit app on port `8501` using the AWS Console.
+Certbot was used to obtain a TLS certificate for the domain, and a DNS A record was created to point to the public IP of the instance.
+The used domain is `sana.meliponiclabs.com` (the name of a project I had).
+
+Finally, an Nginx reverse proxy was set up to forward requests from port `443` to port `8501`, allowing secure access to the app.
 
 ## 📄 Resources and references
 - [AWS AgentCore documentation](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/what-is-bedrock-agentcore.html)
