@@ -2,7 +2,7 @@ import streamlit as st
 from streamlit_js_eval import get_geolocation
 
 from geopy.geocoders import Nominatim
-from timezonefinder import timezone_at
+from tzfpy import get_tz
 from app.auth import SanaAuth
 from app.chat import SanaChat
 
@@ -48,7 +48,7 @@ def render_main_interface(auth: SanaAuth, chat: SanaChat) -> None:
                 lat: float = geolocation['coords']['latitude']
                 lng: float = geolocation['coords']['longitude']
 
-                if (timezone := timezone_at(lat=lat, lng=lng)):
+                if (timezone := get_tz(lat=lat, lng=lng)):
                     st.session_state['timezone'] = timezone
 
                 if (location := geolocator.reverse(f'{lat}, {lng}')):

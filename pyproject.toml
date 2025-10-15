@@ -22,5 +22,5 @@ dependencies = [
     "streamlit>=1.50.0",
     "streamlit-cookies-controller>=0.0.4",
     "streamlit-js-eval>=0.1.7",
-    "timezonefinder>=8.1.0",
+    "tzfpy[tzdata]>=1.0.1",
 ]

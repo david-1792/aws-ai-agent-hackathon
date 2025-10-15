@@ -130,6 +130,15 @@ When reaching the step where the AgentCore Runtime is deployed, you will need to
 To do this, go to the AWS Console and access the ECR service to find the repository for the project.
 Then, follow the instructions to push the Docker image to the repository. Commands should be run from the `sana` folder.
 
+### 🏠 Running locally
+To run the Streamlit app locally, run the following command from the root of the repository:
+
+```bash
+uv run streamlit run sana/app.py
+```
+
+This will start the Streamlit app and you can access it at `http://localhost:8501`.
+
 ### 🏁 Finishing up the configuration
 After the deployment is finished, there are a few manual steps that need to be done to finish the configuration:
 - Clone the GitHub repo into the Lightsail instance

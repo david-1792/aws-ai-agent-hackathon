@@ -3,6 +3,7 @@ from pathlib import Path
 from time import sleep
 from urllib import parse
 import json
+import uuid
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -60,8 +61,9 @@ lightsail = boto3.client('lightsail', region_name=settings.AWS_REGION)
 # Common variables
 account_id: str = sts.get_caller_identity()['Account']
 prefix: str = f'{settings.APP_NAME}-{settings.ENVIRONMENT}'
+random_suffix: str = uuid.uuid4().hex[:6]
 
-def main1() -> None:
+def main() -> None:
     memory = agentcore.create_memory(
         name=f'{prefix}-memory'.replace('-', '_'),
         description='Memory for the Sana application',
@@ -110,12 +112,12 @@ def main1() -> None:
     print(f'Created Cognito user pool: {user_pool_id}')
 
     cognito.create_user_pool_domain(
-        Domain=f'{prefix}',
+        Domain=f'{prefix}-{random_suffix}',
         UserPoolId=user_pool_id,
         ManagedLoginVersion=2
     )
 
-    user_pool_domain: str = f'https://{prefix}.auth.{settings.AWS_REGION}.amazoncognito.com'
+    user_pool_domain: str = f'https://{prefix}-{random_suffix}.auth.{settings.AWS_REGION}.amazoncognito.com'
 
     print(f'Created Cognito user pool domain: {user_pool_domain}')
 
@@ -222,7 +224,7 @@ def main1() -> None:
     print(f'Created AgentCore Identity OAuth2 Google provider: {google_oauth_provider_name}')
 
     # Knowledge base
-    data_source_bucket_name: str = f'{prefix}-data-source'
+    data_source_bucket_name: str = f'{prefix}-{random_suffix}-data-source'
     data_source_bucket_arn: str = f'arn:aws:s3:::{data_source_bucket_name}'
 
     s3.create_bucket(
@@ -650,20 +652,6 @@ def main1() -> None:
     print('Waiting 10s for Gateway to be fully available...')
     sleep(10)
 
-def main() -> None:
-    gateway_id = 'sana-prod-gateway-o1vqdtrlpc'
-    resource_lambda_arn = 'arn:aws:lambda:us-east-1:677276121958:function:sana-prod-resource-function'
-    user_pool_discovery_url = 'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_a0Y8lOu8z/.well-known/openid-configuration'
-    web_client_id = '18v0clo8rjq1gfro8mm1jrm7t6'
-    guardrail_id = '4s27g4s5qgiu'
-    guardrail_version_id = '1'
-    memory_id = 'sana_prod_memory-pXR0WD6189'
-    gateway_url = 'https://sana-prod-gateway-o1vqdtrlpc.gateway.bedrock-agentcore.us-east-1.amazonaws.com/mcp'
-    cognito_m2m_oauth_provider_name = 'sana-prod-cognito-m2m'
-    throughline_oauth_provider_arn = 'arn:aws:bedrock-agentcore:us-east-1:677276121958:token-vault/default/oauth2credentialprovider/sana-prod-throughline'
-    google_oauth_provider_name = 'sana-prod-google'
-    user_pool_domain = 'https://sana-prod.auth.us-east-1.amazoncognito.com'
-
     resources_target_tool_schema_path = Path(__file__).parent / 'resources' / 'gateway' / 'resources-target' / 'tools.json'
 
     with open(resources_target_tool_schema_path, 'r') as f:
@@ -848,6 +836,9 @@ def main() -> None:
         PolicyArn=runtime_policy_arn
     )
 
+    print(f'Attached runtime policy to role {runtime_role_name}. Waiting for IAM role propagation...')
+    sleep(10)
+
     runtime = agentcore.create_agent_runtime(
         agentRuntimeName=f'{prefix}-runtime'.replace('-', '_'),
         description='Runtime for the Sana application',
@@ -893,27 +884,36 @@ def main() -> None:
 
     print(f'Created AgentCore Runtime: {runtime_id} with URL {runtime_url}')
 
-    ## Streamlit app
-    instance_launch_script: str = f'''
+    print('App environment variable script:')
+    
+    app_env_var_script = f'''
+    #!/bin/bash    
     touch .env && \
     echo "ENVIRONMENT={settings.ENVIRONMENT}" >> .env && \
     echo "AWS_REGION={settings.AWS_REGION}" >> .env && \
     echo "AWS_COGNITO_DOMAIN={user_pool_domain}" >> .env && \
     echo "AWS_COGNITO_APP_CLIENT_ID={web_client_id}" >> .env && \
     echo "AWS_COGNITO_REDIRECT_URI={settings.FRONTEND_URL}" >> .env && \
-    echo "AWS_AGENTCORE_RUNTIME_URL={runtime_url}" >> .env
-    '''
+    echo "AWS_AGENTCORE_RUNTIME_URL={runtime_url}" >> .env '''
 
+    print(app_env_var_script)
+
+    if settings.ENVIRONMENT != 'prod':
+        print('Skipping Lightsail deployment for non-prod environment.')
+        return
+    
+    ## Streamlit app
     instance_name: str = f'{prefix}-instance'
     lightsail.create_instances(
         instanceNames=[instance_name],
         availabilityZone=f'{settings.AWS_REGION}a',
         blueprintId='ubuntu_24_04',
-        bundleId='nano_3_0',
-        userData=instance_launch_script,
+        bundleId='nano_3_0'
     )
 
     print(f'Created Lightsail instance: {instance_name}')
+    print('Waiting 60s for instance to be fully available...')
+    sleep(60)
 
     static_ip_name: str = f'{prefix}-static-ip'
     lightsail.allocate_static_ip(
@@ -921,7 +921,6 @@ def main() -> None:
     )
 
     print(f'Created Lightsail static IP: {static_ip_name}')
-
     lightsail.attach_static_ip(
         staticIpName=static_ip_name,
         instanceName=instance_name
