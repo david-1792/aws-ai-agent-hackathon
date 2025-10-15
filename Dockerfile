@@ -12,11 +12,11 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-install-project
 
 COPY ./pyproject.toml ./uv.lock /app/
-COPY . /app/sana
+COPY ./sana /app/sana
 
 WORKDIR /app
 
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen
 
-CMD ["python", "-m", "sana.main"]
+CMD ["opentelemetry-instrument", "python", "-m", "sana.main"]

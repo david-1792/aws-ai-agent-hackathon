@@ -35,13 +35,14 @@ class Settings(BaseSettings):
 
     # Load .env file
     model_config = SettingsConfigDict(
-        env_file='.env', 
+        env_file='infra/.env', 
         env_file_encoding='utf-8',
         extra='ignore'
     )
 
 settings = Settings()
 
+print(f'Deploying {settings.APP_NAME} in {settings.ENVIRONMENT} environment to AWS region {settings.AWS_REGION}...')
 
 # boto3 clients
 sts = boto3.client('sts', region_name=settings.AWS_REGION)
@@ -60,7 +61,7 @@ lightsail = boto3.client('lightsail', region_name=settings.AWS_REGION)
 account_id: str = sts.get_caller_identity()['Account']
 prefix: str = f'{settings.APP_NAME}-{settings.ENVIRONMENT}'
 
-def main() -> None:
+def main1() -> None:
     memory = agentcore.create_memory(
         name=f'{prefix}-memory'.replace('-', '_'),
         description='Memory for the Sana application',
@@ -645,6 +646,23 @@ def main() -> None:
     gateway_url: str = gateway['gatewayUrl']
 
     print(f'Created AgentCore Gateway: {gateway_id}')
+    
+    print('Waiting 10s for Gateway to be fully available...')
+    sleep(10)
+
+def main() -> None:
+    gateway_id = 'sana-prod-gateway-o1vqdtrlpc'
+    resource_lambda_arn = 'arn:aws:lambda:us-east-1:677276121958:function:sana-prod-resource-function'
+    user_pool_discovery_url = 'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_a0Y8lOu8z/.well-known/openid-configuration'
+    web_client_id = '18v0clo8rjq1gfro8mm1jrm7t6'
+    guardrail_id = '4s27g4s5qgiu'
+    guardrail_version_id = '1'
+    memory_id = 'sana_prod_memory-pXR0WD6189'
+    gateway_url = 'https://sana-prod-gateway-o1vqdtrlpc.gateway.bedrock-agentcore.us-east-1.amazonaws.com/mcp'
+    cognito_m2m_oauth_provider_name = 'sana-prod-cognito-m2m'
+    throughline_oauth_provider_arn = 'arn:aws:bedrock-agentcore:us-east-1:677276121958:token-vault/default/oauth2credentialprovider/sana-prod-throughline'
+    google_oauth_provider_name = 'sana-prod-google'
+    user_pool_domain = 'https://sana-prod.auth.us-east-1.amazoncognito.com'
 
     resources_target_tool_schema_path = Path(__file__).parent / 'resources' / 'gateway' / 'resources-target' / 'tools.json'
 
@@ -878,11 +896,11 @@ def main() -> None:
     ## Streamlit app
     instance_launch_script: str = f'''
     touch .env && \
-    echo "ENVIRONMENT=prod" >> .env && \
-    echo "AWS_REGION=us-east-1" >> .env && \
+    echo "ENVIRONMENT={settings.ENVIRONMENT}" >> .env && \
+    echo "AWS_REGION={settings.AWS_REGION}" >> .env && \
     echo "AWS_COGNITO_DOMAIN={user_pool_domain}" >> .env && \
     echo "AWS_COGNITO_APP_CLIENT_ID={web_client_id}" >> .env && \
-    echo "AWS_COGNITO_REDIRECT_URI=http://localhost:8501" >> .env && \
+    echo "AWS_COGNITO_REDIRECT_URI={settings.FRONTEND_URL}" >> .env && \
     echo "AWS_AGENTCORE_RUNTIME_URL={runtime_url}" >> .env
     '''
 
