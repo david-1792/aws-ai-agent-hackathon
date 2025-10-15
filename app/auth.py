@@ -132,8 +132,8 @@ class SanaAuth:
             del st.session_state['messages']
     
         params: dict = {
-            'client_id': self.client_id,
-            'logout_uri': self.redirect_url,
+            'client_id': settings.AWS_COGNITO_APP_CLIENT_ID,
+            'logout_uri': settings.AWS_COGNITO_REDIRECT_URI,
         }
 
         logout_url: str = f'{settings.AWS_COGNITO_DOMAIN}/logout?{urlencode(params)}'

@@ -18,7 +18,7 @@ class ResourceList(TypedDict):
 
 def search_resources(
     query: str,
-    limit: int = 5
+    limit: int = 3
 ) -> ResourceList:
     url_set: set[str] = set()
 

@@ -33,10 +33,14 @@ def main() -> None:
 
 def render_main_interface(auth: SanaAuth, chat: SanaChat) -> None:
     with st.sidebar:
-        st.title('🧠🩺 Sana')
+        st.image('app/static/logo.png', use_container_width=True)
+        st.markdown(
+            '<h1 style="text-align: center;">Sana</h1>',
+            unsafe_allow_html=True,
+        )
         st.markdown('---')
 
-        st.subheader('⚙️ Settings')
+        st.subheader('⚙️ **Settings**')
         allow_location = st.checkbox('📍 Allow location access')
 
         if allow_location:
@@ -56,6 +60,7 @@ def render_main_interface(auth: SanaAuth, chat: SanaChat) -> None:
                         st.warning('Your location is outside the US. We will use a default location of New York for location-based services.')
                         st.session_state['country'] = 'US'
                         st.session_state['zip_code'] = '10001'
+                        st.session_state['timezone'] = 'America/New_York'
 
         st.markdown('<br><br>', unsafe_allow_html=True)
         st.markdown('---')

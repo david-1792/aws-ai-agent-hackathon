@@ -1,7 +1,11 @@
-# 🧠🩺 **Sana**: an AI-powered mental health screening agent
+<p align="center">
+  <img src="./img/logo.png" height="300" />
+</p>
+
+# **Sana**: an AI-powered mental health screening agent
 
 ## 📋 Table of contents
-- [🧠🩺 **Sana**: an AI-powered mental health screening agent](#-sana-an-ai-powered-mental-health-screening-agent)
+- [**Sana**: an AI-powered mental health screening agent](#sana-an-ai-powered-mental-health-screening-agent)
   - [📋 Table of contents](#-table-of-contents)
   - [🌎 Overview](#-overview)
     - [💡 Core ideas](#-core-ideas)

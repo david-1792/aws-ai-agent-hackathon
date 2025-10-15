@@ -1,0 +1,10 @@
+{
+    "metadataAttributes": {
+        "x-amz-bedrock-kb-source-uri": {
+            "value": {
+                "type": "STRING",
+                "stringValue": "https://www.nhs.uk/mental-health/conditions/obsessive-compulsive-disorder-ocd/overview/"
+            }
+        }
+    }
+}

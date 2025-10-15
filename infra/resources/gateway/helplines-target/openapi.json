@@ -14,7 +14,7 @@
     "/v1/countries": {
       "get": {
         "operationId": "getCountries",
-        "summary": "Get a list of countries which have helplines",
+        "summary": "Get a list of countries which have helplines. Call this tool before obtaining the helplines to know which countries are supported.",
         "responses": {
           "200": {
             "description": "Success",
@@ -51,7 +51,7 @@
     "/v1/topics": {
       "get": {
         "operationId": "getTopics",
-        "summary": "Get a list of the possible helpline topics",
+        "summary": "Get a list of the possible helpline topics. Call this tool before obtaining the helplines to get more relevant results.",
         "responses": {
           "200": {
             "description": "Success",
@@ -85,7 +85,7 @@
     "/v1/helplines": {
       "get": {
         "operationId": "getHelplines",
-        "summary": "Get a list of helplines by country and optional filters",
+        "summary": "Get a list of helplines by country and optional filters. This is the main operation that returns the list of helpline information.",
         "parameters": [
           {
             "name": "country_code",

@@ -31,7 +31,10 @@ class SanaChat:
             payload: dict = {
                 'prompt': message,
                 'actor': {
-                    'city': st.session_state.get('city', 'Ciudad de México')
+                    'id': claims.get('sub', 'anonymous'),
+                    'country': st.session_state.get('country', 'US'),
+                    'zip_code': st.session_state.get('zip_code', '10001'),
+                    'timezone': st.session_state.get('timezone', 'America/New_York')
                 }
             }
 
@@ -50,7 +53,7 @@ class SanaChat:
                     response += ''
 
                 create_safe_markdown(response, placeholder)
-                time.sleep(0.02)
+                time.sleep(0.06)  # Small delay to make streaming more natural
 
             st.session_state['pending_assistant'] = False
             st.session_state['messages'].append({'role': 'assistant', 'content': response})
@@ -84,7 +87,7 @@ class SanaChat:
         headers: dict = {
             'Authorization': f'Bearer {bearer_token}',
             'Content-Type': 'application/json',
-            'X-Amzn-Bedrock-AgentCore-Runtime-Session-Id': session_id,
+            'X-Amzn-Bedrock-AgentCore-Runtime-Session-Id': session_id
         }
 
         try:

@@ -15,7 +15,7 @@ class GoogleCalendarTools():
 
     @property
     def tools(self) -> list:
-        return [self.create_calendar_event, self.get_free_timeslots]
+        return [self.create_calendar_event, self.get_busy_timeslots]
     
     def _authenticate(self) -> None:
         if not (access_token := SanaContext.get_google_token()):
@@ -71,13 +71,15 @@ class GoogleCalendarTools():
             return f'An error occurred: {e}'
         
     @tool
-    def get_free_timeslots(
+    def get_busy_timeslots(
         self,
         from_time: str,
         to_time: str,
         timezone: str = 'UTC',
-    ):
+    ) -> list[dict]:
         """
+        Returns a list of busy time slots in the user's primary calendar between from_time and to_time.
+
         Args:
             from_time (str): The start time in RFC3339 format (e.g., '2023-10-01T09:00:00Z').
             to_time (str): The end time in RFC3339 format (e.g., '2023-10-01T17:00:00Z').

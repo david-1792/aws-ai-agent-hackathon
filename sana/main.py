@@ -31,7 +31,7 @@ async def invoke(payload: InvokePayload, context: RequestContext):
 
     # Set a default session identifier if not provided
     session_id: str = context.session_id or str(uuid.uuid4())
-
+    
     task: Task = create_task(
         agent_task(
             message=payload.prompt,

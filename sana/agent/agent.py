@@ -2,7 +2,7 @@ from pathlib import Path
 from collections.abc import AsyncGenerator
 import hashlib
 import logging
-import uuid
+
 import yaml
 
 from strands import Agent
@@ -19,6 +19,8 @@ from opentelemetry import baggage, context
 
 from sana.core.config import settings
 from sana.core.models import Actor
+
+from sana.agent.tools import tool_map
 
 logger = logging.getLogger(__name__)
 
@@ -56,6 +58,8 @@ class Sana:
             region_name=settings.AWS_REGION,
             streaming=True
         )
+
+        self._load_user_context()
 
         self.agent = Agent(
             name='Sana',
@@ -163,10 +167,29 @@ class Sana:
         
         return metadata if isinstance(metadata, dict) else {}, prompt
 
+    def _load_user_context(self) -> None:
+        self.prompt = self.prompt.replace('{{country}}', self.actor.country)
+        self.prompt = self.prompt.replace('{{zip_code}}', self.actor.zip_code)
+        self.prompt = self.prompt.replace('{{timezone}}', self.actor.timezone)
+
     async def stream(self, message: str) -> AsyncGenerator[str, None]:
+        using_tool: bool = False
+        current_tool_name: str | None = None
+
         try:
             async for event in self.agent.stream_async(message):
                 if 'data' in event:
+                    if using_tool:
+                        using_tool = False
+                        
                     yield event["data"]
+                elif 'current_tool_use' in event:
+                    if not using_tool or current_tool_name != event['current_tool_use']['name']:
+                        using_tool = True
+                        current_tool_name = event['current_tool_use']['name']
+                        tool_message: str = tool_map.get(current_tool_name, 'Performing tool action...')
+
+                        yield f'\n\n>{tool_message}\n\n'
+
         except Exception as e:
             yield f'error: {e}'

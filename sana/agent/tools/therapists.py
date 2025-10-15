@@ -38,16 +38,18 @@ def search_therapists(
     insurance: str | None = None,
     needs_medication_management: bool = False,
     therapist_gender_preference: Literal['female', 'male', 'non-binary', 'transgender'] | None = None,
-    therapist_ethnicity_preference: Literal['Asian', 'Black', 'Hispanic', 'White'] | None = None,
+    therapist_ethnicity_preference: Literal['asian', 'black', 'hispanic', 'white'] | None = None,
     meeting_type_preference: Literal['in person', 'remote'] | None = None,
-    limit: int = 5
+    limit: int = 3
 ) -> list[FullTherapistInfo]:
     """
     Search for therapists using Headway, based on provided criteria.
     Use this tool once you have a clear understanding of the user's context, needs and preferences.
     If you do not have enough information, ask the user for more details before using this tool, for example:
     - "Do you have any insurance provider you would like to use?"
-    - "Do you have any preferences regarding the gender or ethnicity of the therapist?"
+    - "Are you taking any medication for your mental health currently?"
+    - "Do you have any preferences regarding the gender of your therapist?"
+    - "Do you have any preferences regarding the ethnicity of your therapist? Maybe someone who understands your cultural background?"
     - "Would you prefer in-person or remote sessions?"
     This tool will connect to the Headway webpage and perform a search for therapists based on the provided criteria.
     This webpage can only search for therapists in the US. If the user is not located in the US, use the zip code 10001 (New York, NY).
@@ -70,8 +72,8 @@ def search_therapists(
     Args:
         zip_code (str): The zip code to search for therapists in.
         topics(list[str]): List of topics the therapist should specialize in.
-                           Possible values: ['adhd', 'anxiety, 'ocd', 'stress', 'depression', 'relationship issues', 'bipolar disorder', 'eating disorders', 'grief', 'substance abuse', 'trauma and ptsd', 'anger management', 'sleep disorders', 'maternal health', 'infertility', 'family issues', 'relationship issues', 'lgbtq+', 'transgender issues', 'cultural and ethic issues', 'identity issues', 'woman issues', 'men issues']
-                           This list must not be more than 3 topics long. Choose the most relevant topics for the user.
+                           Possible values: ['adhd', 'anxiety, 'ocd', 'stress', 'depression', 'relationship issues', 'bipolar disorder', 'eating disorders', 'grief', 'substance abuse', 'trauma and ptsd', 'anger management', 'sleep disorders', 'maternal health', 'infertility', 'family issues', 'relationship issues', 'lgbtq+']
+                           This list must contain less than 3 topics long. Choose ONLY the most relevant topics for the user. Do not include topics that are not available or that are not directly related to the user.
         insurance (str | None): Insurance provider to filter therapists by.
         needs_medication_management (bool): Whether the user needs medication management.
         therapist_gender_preference (string or None): Preferred gender of the therapist. Leave as None for no preference.
@@ -80,7 +82,7 @@ def search_therapists(
                                                         Possible values: ['asian', 'black', 'hispanic', 'white']
         meeting_type_preference (str): Preferred meeting type. Leave as None for no preference.
                                        Possible values: ['in person', 'remote']
-        limit (int): Maximum number of therapists to return.
+        limit (int): Maximum number of therapists to return. Default is 3.
     Returns:
         A list of therapists, each containing:
         - name (str): The name of the therapist.
@@ -90,7 +92,7 @@ def search_therapists(
         - focus_areas (list[str]): List of focus areas the therapist specializes in.
         - personality_traits (list[str]): List of personality traits of the therapist.
         - offers_free_consultation (bool): Whether the therapist offers a free consultation.
-        - next_available_appointment (str): Date of the next available appointment in YYYY-MM-DD format.
+        - next_available_appointment (str): Date of the next available appointment in MM-DD format.
     """
     all_therapists: list[Therapist] = []
     with browser_session(settings.AWS_REGION) as browser:
@@ -106,12 +108,19 @@ def search_therapists(
                     'Close any cookie banners, '
                     f'search for therapists in the {zip_code} zip code '
                     f'{f"using insurance {insurance}" if insurance else "leaving the insurance field blank. "}'
+                )
+                nova.act(
+                    'You will complete a multi-step form to filter therapists. Select next to continue to the next step. '
                     'Select Someone else as for whom you are looking for therapy. '
-                    f'{"Select both talk therapy and medication management. " if needs_medication_management else "Select talk therapy and press next to continue. "}'
+                    f'{"Select both talk therapy and medication management. " if needs_medication_management else "Select talk therapy. "}'
                     f'For the therapist gender preferences, select {"no preference" if not therapist_gender_preference else therapist_gender_preference}. '
-                    f'For the therapist ethnicity preferences, select {"no preference" if not therapist_ethnicity_preference else therapist_ethnicity_preference}. Press next to continue. '
-                    f'For the meeting type preference, select {"either" if not meeting_type_preference else meeting_type_preference}. Press next to continue. '
-                    f'For the topics, select only the ones that are available from the following: ({", ".join(topics)}). If a topic is not available, skip it. Do not scroll down to search for it. '
+                    f'For the therapist ethnicity preferences, select {"no preference" if not therapist_ethnicity_preference else therapist_ethnicity_preference}.'
+                    f'For the meeting type preference, select {"either" if not meeting_type_preference else meeting_type_preference}. Do not press next. '
+                    'Stop once you are in the Step 4: How can a therapist help? section. '
+                )
+                nova.act(
+                    f'From the shown topics, select only the ones that are available from the following: ({", ".join(topics)}). '
+                    'If a topic is not available, skip it. Do not scroll down to search for it. '
                     'Press next to continue and wait for the results page to pop up. '
                 )
 
@@ -121,7 +130,7 @@ def search_therapists(
                         "Do not include therapists whose information is not fully visible. "
                         "Do not scroll down the page, just work with the currently visible therapists. "
                         "Make sure that the name is correctly spelled and capitalized. "
-                        "To fill in the next_available_appointment field, parse the date in the format YYYY-MM-DD."
+                        "To fill in the next_available_appointment field, parse the date in the format MM-DD."
                         "If an offers free consultation text is visible, set the offers_free_consultation field to true, otherwise false. ",
                         schema=TherapistList.model_json_schema()
                     )
@@ -139,7 +148,12 @@ def search_therapists(
                 
                 full_therapist_info_list: list[FullTherapistInfo] = []
                 for therapist in all_therapists:
-                    path = nova.page.get_by_role('link', name=f'View {therapist.name}\'s profile').first.get_attribute('href')
+                    try:
+                        path = nova.page.get_by_role('link', name=f'View {therapist.name}\'s profile').first.get_attribute('href')
+                    except Exception as e:
+                        logger.error(f'Failed to get profile link for therapist {therapist.name}: {e}')
+                        continue
+
                     therapist_full_info = FullTherapistInfo(**therapist.model_dump(), path=path)
                     full_therapist_info_list.append(therapist_full_info)
 

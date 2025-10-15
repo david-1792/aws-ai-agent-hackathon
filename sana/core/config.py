@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     AWS_REGION: str
 
     ## AWS Bedrock
-    AWS_BEDROCK_MODEL_ID: str = 'us.anthropic.claude-3-7-sonnet-20250219-v1:0'
+    AWS_BEDROCK_MODEL_ID: str = 'global.anthropic.claude-sonnet-4-20250514-v1:0'
     AWS_BEDROCK_TEMPERATURE: float = 0.0
     AWS_BEDROCK_MAX_TOKENS: int = 2048
     

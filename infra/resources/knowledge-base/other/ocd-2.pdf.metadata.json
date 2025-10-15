@@ -1,0 +1,10 @@
+{
+    "metadataAttributes": {
+        "x-amz-bedrock-kb-source-uri": {
+            "value": {
+                "type": "STRING",
+                "stringValue": "https://www.hopkinsmedicine.org/health/conditions-and-diseases/obsessivecompulsive-disorder-ocd"
+            }
+        }
+    }
+}

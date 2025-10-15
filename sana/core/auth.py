@@ -13,7 +13,7 @@ def get_gateway_token(access_token: str) -> str:
 
 async def on_auth_url(url: str) -> None:
     if (queue := SanaContext.get_queue()):
-        await queue.put(f'Please authenticate by visiting this URL: {url}')
+        await queue.put(f'\n\n:blue-badge[You must allow us to access your Google account using [this link]({url}).]\n\n')
 
 GOOGLE_SCOPES: list[str] = ['https://www.googleapis.com/auth/calendar']
 
