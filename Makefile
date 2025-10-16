@@ -1,2 +1,5 @@
 deploy-app:
-	uv run streamlit run app.py
+	uv run  --group app streamlit run app.py --server.port 8501 --server.address 0.0.0.0 --server.headless true
+
+deploy-agent:
+	uv run --group agent python -m sana.main

@@ -11,7 +11,7 @@
         },
         "limit": {
           "type": "integer",
-          "description": "Maximum number of resources to return. Default is 5."
+          "description": "Maximum number of resources to return. The default and recommended value is 3."
         }
       },
       "required": ["query"]

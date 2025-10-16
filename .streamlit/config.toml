@@ -1,5 +1,5 @@
 [theme]
-primaryColor = "#bb5a38"
+primaryColor = "#babca1"
 backgroundColor = "#f4f3ed"
 secondaryBackgroundColor = "#ecebe3"
 textColor = "#3d3a2a"
@@ -7,13 +7,13 @@ linkColor = "#3d3a2a"
 borderColor = "#d3d2ca"
 showWidgetBorder = true
 baseRadius = "0.6rem"
-font = "Nunito:https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700&display=swap"
-codeFont = "'Space Mono':https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap"
+font = "sans-serif"
+headingFont = "sans-serif"
+codeFont = "monospace"
 codeBackgroundColor = "#ecebe4"
 showSidebarBorder = true
 headingFontSizes = ["40px", "32px", "24px"]
-headingFontWeights = 500
-
+headingFontWeights = [300, 400]
 
 [theme.sidebar]
 backgroundColor = "#e8e7dd"

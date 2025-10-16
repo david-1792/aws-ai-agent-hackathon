@@ -1,6 +1,5 @@
 import logging
 
-from sana.core.config import settings
 from sana.core.context import SanaContext
 from sana.core.models import Actor
 from sana.agent import Sana
@@ -19,7 +18,7 @@ async def agent_task(
         raise RuntimeError('No gateway token found in context')
 
     try:
-        if settings.ENVIRONMENT == 'local' or not (agent := SanaContext.get_agent()):
+        if not (agent := SanaContext.get_agent()):
             logger.info(f'Initializing agent for session: {session_id} and actor: {actor}')
 
             agent = Sana(

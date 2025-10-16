@@ -3044,6 +3044,33 @@ dependencies = [
     { name = "tzfpy", extra = ["tzdata"] },
 ]
 
+[package.dev-dependencies]
+agent = [
+    { name = "aws-opentelemetry-distro" },
+    { name = "bedrock-agentcore", extra = ["strands-agents"] },
+    { name = "google-api-python-client" },
+    { name = "google-auth-oauthlib" },
+    { name = "nova-act" },
+    { name = "pydantic-extra-types" },
+    { name = "pydantic-settings" },
+    { name = "pyyaml" },
+    { name = "strands-agents", extra = ["otel"] },
+    { name = "strands-agents-tools" },
+]
+app = [
+    { name = "geopy" },
+    { name = "pydantic-settings" },
+    { name = "requests" },
+    { name = "streamlit" },
+    { name = "streamlit-cookies-controller" },
+    { name = "streamlit-js-eval" },
+    { name = "tzfpy", extra = ["tzdata"] },
+]
+infra = [
+    { name = "boto3" },
+    { name = "pydantic-settings" },
+]
+
 [package.metadata]
 requires-dist = [
     { name = "aws-opentelemetry-distro", specifier = ">=0.12.1" },
@@ -3064,6 +3091,33 @@ requires-dist = [
     { name = "streamlit-cookies-controller", specifier = ">=0.0.4" },
     { name = "streamlit-js-eval", specifier = ">=0.1.7" },
     { name = "tzfpy", extras = ["tzdata"], specifier = ">=1.0.1" },
+]
+
+[package.metadata.requires-dev]
+agent = [
+    { name = "aws-opentelemetry-distro", specifier = ">=0.12.1" },
+    { name = "bedrock-agentcore", extras = ["strands-agents"], specifier = ">=0.1.7" },
+    { name = "google-api-python-client", specifier = ">=2.184.0" },
+    { name = "google-auth-oauthlib", specifier = ">=1.2.2" },
+    { name = "nova-act", specifier = ">=2.1.124.0" },
+    { name = "pydantic-extra-types", specifier = ">=2.10.6" },
+    { name = "pydantic-settings", specifier = ">=2.11.0" },
+    { name = "pyyaml", specifier = ">=6.0.3" },
+    { name = "strands-agents", extras = ["otel"], specifier = ">=1.12.0" },
+    { name = "strands-agents-tools", specifier = ">=0.2.11" },
+]
+app = [
+    { name = "geopy", specifier = ">=2.4.1" },
+    { name = "pydantic-settings", specifier = ">=2.11.0" },
+    { name = "requests", specifier = ">=2.32.5" },
+    { name = "streamlit", specifier = ">=1.50.0" },
+    { name = "streamlit-cookies-controller", specifier = ">=0.0.4" },
+    { name = "streamlit-js-eval", specifier = ">=0.1.7" },
+    { name = "tzfpy", extras = ["tzdata"], specifier = ">=1.0.1" },
+]
+infra = [
+    { name = "boto3", specifier = ">=1.40.51" },
+    { name = "pydantic-settings", specifier = ">=2.11.0" },
 ]
 
 [[package]]

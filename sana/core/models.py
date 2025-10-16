@@ -8,8 +8,8 @@ from pydantic_extra_types.timezone_name import TimeZoneName
 class Actor(BaseModel):
     id: Annotated[str, Field('anonymous')]
     country: Annotated[CountryAlpha2, Field('US')]
-    zip_code: Annotated[str, Field('10001')]
-    timezone: Annotated[TimeZoneName, Field('America/New_York')]
+    zip_code: Annotated[str, Field('90011')]
+    timezone: Annotated[TimeZoneName, Field('America/Los_Angeles')]
 
 class InvokePayload(BaseModel):
     prompt: Annotated[str, Field(...)]

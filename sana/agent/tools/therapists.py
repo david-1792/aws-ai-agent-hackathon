@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Literal, Any
 import logging
 
 from strands.tools import tool
@@ -15,8 +15,8 @@ class Therapist(BaseModel):
     name: str
     in_person_sessions: bool | None
     remote_sessions: bool | None
-    focus_areas: list[str] | None
-    personality_traits: list[str] | None
+    focus_areas: Any
+    personality_traits: Any
     offers_free_consultation: bool | None
     next_available_appointment: str | None
     
@@ -40,7 +40,7 @@ def search_therapists(
     therapist_gender_preference: Literal['female', 'male', 'non-binary', 'transgender'] | None = None,
     therapist_ethnicity_preference: Literal['asian', 'black', 'hispanic', 'white'] | None = None,
     meeting_type_preference: Literal['in person', 'remote'] | None = None,
-    limit: int = 3
+    limit: int = 5
 ) -> list[FullTherapistInfo]:
     """
     Search for therapists using Headway, based on provided criteria.
@@ -82,7 +82,7 @@ def search_therapists(
                                                         Possible values: ['asian', 'black', 'hispanic', 'white']
         meeting_type_preference (str | None): Preferred meeting type. Leave as None for no preference.
                                        Possible values: ['in person', 'remote']
-        limit (int): Maximum number of therapists to return. Default is 3.
+        limit (int): Maximum number of therapists to return. Default is 5.
     Returns:
         A list of therapists, each containing:
         - name (str): The name of the therapist.
@@ -127,7 +127,8 @@ def search_therapists(
                 for _ in range(limit):
                     result = nova.act(
                         "Return the currently visible list of therapists. "
-                        "Do not include therapists whose information is not fully visible. "
+                        "Omit therapists whose information is not fully visible. "
+                        "A therapist's information is fully visible if you can see complete card. "
                         "Do not scroll down the page, just work with the currently visible therapists. "
                         "Make sure that the name is correctly spelled and capitalized. "
                         "To fill in the next_available_appointment field, parse the date in the format MM-DD."
@@ -137,25 +138,34 @@ def search_therapists(
 
                     if not result.matches_schema:
                         logger.error(f'Invalid schema returned from Nova Act: {result}')
-                        break
+                        continue
 
                     therapist_list = TherapistList.model_validate(result.parsed_response)
-                    all_therapists.extend(therapist_list.therapists)
-                    if len(all_therapists) >= limit:
-                        break
+                    for therapist in therapist_list.therapists:
+                        if not therapist.name or not therapist.next_available_appointment:
+                            continue
+
+                        all_therapists.append(therapist)
+                        if len(all_therapists) >= limit:
+                            break
 
                     nova.act("Scroll down the page")
                 
                 full_therapist_info_list: list[FullTherapistInfo] = []
                 for therapist in all_therapists:
                     try:
-                        path = nova.page.get_by_role('link', name=f'View {therapist.name}\'s profile').first.get_attribute('href')
-                    except Exception as e:
-                        logger.error(f'Failed to get profile link for therapist {therapist.name}: {e}')
-                        continue
+                        path = nova.page.get_by_role('link', name=therapist.name).first.get_attribute('href')
+                    except Exception:
+                        try:
+                            therapist_first_name, therapist_last_name = therapist.name.split(' ', 1)
+                            path = nova.page.get_by_role('link', name=f'{therapist_first_name} {therapist_last_name[0]}').first.get_attribute('href')
+                        except Exception as e:
+                            logger.error(f'Failed to get profile link for therapist {therapist.name}: {e}')
+                            continue
 
                     therapist_full_info = FullTherapistInfo(**therapist.model_dump(), path=path)
-                    full_therapist_info_list.append(therapist_full_info)
+                    if therapist_full_info.name and therapist_full_info.next_available_appointment and therapist_full_info.url:
+                        full_therapist_info_list.append(therapist_full_info)
 
                 return full_therapist_info_list
             except NovaActError as e:

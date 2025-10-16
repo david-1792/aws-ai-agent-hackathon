@@ -33,8 +33,8 @@ class SanaChat:
                 'actor': {
                     'id': claims.get('sub', 'anonymous'),
                     'country': st.session_state.get('country', 'US'),
-                    'zip_code': st.session_state.get('zip_code', '10001'),
-                    'timezone': st.session_state.get('timezone', 'America/New_York')
+                    'zip_code': st.session_state.get('zip_code', '90011 '),
+                    'timezone': st.session_state.get('timezone', 'America/Los_Angeles')
                 }
             }
 

@@ -1,8 +1,0 @@
-services:
-  sana:
-    build: .
-    container_name: sana
-    ports:
-      - "8080:8080"
-    env_file:
-      - .env

@@ -19,6 +19,4 @@ WORKDIR /app
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen
 
-RUN uv run playwright install
-
 CMD ["opentelemetry-instrument", "python", "-m", "sana.main"]

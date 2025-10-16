@@ -66,10 +66,8 @@
                         "type": "object",
                         "properties": {
                           "name": {
-                            "type": "string"
-                          },
-                          "code": {
-                            "type": "string"
+                            "type": "string",
+                            "description": "The name of the topic. This is the value to use when filtering helplines by topic."
                           }
                         }
                       }

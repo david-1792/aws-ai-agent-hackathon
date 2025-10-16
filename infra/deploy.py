@@ -799,6 +799,13 @@ def main() -> None:
                     'Action': [
                         'bedrock-agentcore:StartBrowserSession',
 				        'bedrock-agentcore:StopBrowserSession',
+                        'bedrock-agentcore:ListBrowserSessions',
+                        'bedrock-agentcore:ListBrowsers',
+                        'bedrock-agentcore:GetBrowser',
+                        'bedrock-agentcore:GetBrowserSession',
+                        'bedrock-agentcore:UpdateBrowserStream',
+                        'bedrock-agentcore:ConnectBrowserAutomationStream',
+                        'bedrock-agentcore:ConnectBrowserLiveViewStream'
                     ],
                     'Resource': ['*']
                 },
