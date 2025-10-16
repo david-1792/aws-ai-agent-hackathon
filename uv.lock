@@ -5,6 +5,14 @@ resolution-markers = [
     "python_full_version < '3.13'",
 ]
 
+[manifest]
+members = [
+    "sana",
+    "sana-agent",
+    "sana-app",
+    "sana-infra",
+]
+
 [[package]]
 name = "aiohappyeyeballs"
 version = "2.6.1"
@@ -3044,33 +3052,6 @@ dependencies = [
     { name = "tzfpy", extra = ["tzdata"] },
 ]
 
-[package.dev-dependencies]
-agent = [
-    { name = "aws-opentelemetry-distro" },
-    { name = "bedrock-agentcore", extra = ["strands-agents"] },
-    { name = "google-api-python-client" },
-    { name = "google-auth-oauthlib" },
-    { name = "nova-act" },
-    { name = "pydantic-extra-types" },
-    { name = "pydantic-settings" },
-    { name = "pyyaml" },
-    { name = "strands-agents", extra = ["otel"] },
-    { name = "strands-agents-tools" },
-]
-app = [
-    { name = "geopy" },
-    { name = "pydantic-settings" },
-    { name = "requests" },
-    { name = "streamlit" },
-    { name = "streamlit-cookies-controller" },
-    { name = "streamlit-js-eval" },
-    { name = "tzfpy", extra = ["tzdata"] },
-]
-infra = [
-    { name = "boto3" },
-    { name = "pydantic-settings" },
-]
-
 [package.metadata]
 requires-dist = [
     { name = "aws-opentelemetry-distro", specifier = ">=0.12.1" },
@@ -3093,8 +3074,25 @@ requires-dist = [
     { name = "tzfpy", extras = ["tzdata"], specifier = ">=1.0.1" },
 ]
 
-[package.metadata.requires-dev]
-agent = [
+[[package]]
+name = "sana-agent"
+version = "0.1.0"
+source = { virtual = "sana" }
+dependencies = [
+    { name = "aws-opentelemetry-distro" },
+    { name = "bedrock-agentcore", extra = ["strands-agents"] },
+    { name = "google-api-python-client" },
+    { name = "google-auth-oauthlib" },
+    { name = "nova-act" },
+    { name = "pydantic-extra-types" },
+    { name = "pydantic-settings" },
+    { name = "pyyaml" },
+    { name = "strands-agents", extra = ["otel"] },
+    { name = "strands-agents-tools" },
+]
+
+[package.metadata]
+requires-dist = [
     { name = "aws-opentelemetry-distro", specifier = ">=0.12.1" },
     { name = "bedrock-agentcore", extras = ["strands-agents"], specifier = ">=0.1.7" },
     { name = "google-api-python-client", specifier = ">=2.184.0" },
@@ -3106,7 +3104,23 @@ agent = [
     { name = "strands-agents", extras = ["otel"], specifier = ">=1.12.0" },
     { name = "strands-agents-tools", specifier = ">=0.2.11" },
 ]
-app = [
+
+[[package]]
+name = "sana-app"
+version = "0.1.0"
+source = { virtual = "app" }
+dependencies = [
+    { name = "geopy" },
+    { name = "pydantic-settings" },
+    { name = "requests" },
+    { name = "streamlit" },
+    { name = "streamlit-cookies-controller" },
+    { name = "streamlit-js-eval" },
+    { name = "tzfpy", extra = ["tzdata"] },
+]
+
+[package.metadata]
+requires-dist = [
     { name = "geopy", specifier = ">=2.4.1" },
     { name = "pydantic-settings", specifier = ">=2.11.0" },
     { name = "requests", specifier = ">=2.32.5" },
@@ -3115,7 +3129,18 @@ app = [
     { name = "streamlit-js-eval", specifier = ">=0.1.7" },
     { name = "tzfpy", extras = ["tzdata"], specifier = ">=1.0.1" },
 ]
-infra = [
+
+[[package]]
+name = "sana-infra"
+version = "0.1.0"
+source = { virtual = "infra" }
+dependencies = [
+    { name = "boto3" },
+    { name = "pydantic-settings" },
+]
+
+[package.metadata]
+requires-dist = [
     { name = "boto3", specifier = ">=1.40.51" },
     { name = "pydantic-settings", specifier = ">=2.11.0" },
 ]

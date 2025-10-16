@@ -8,6 +8,32 @@ from app.chat import SanaChat
 
 geolocator = Nominatim(user_agent='sana-app')
 
+def on_welcome_dialog_dismiss() -> None:
+    st.session_state['welcome_shown'] = True
+
+@st.dialog(
+    title='Welcome to Sana! 👋',
+    on_dismiss=on_welcome_dialog_dismiss
+)
+def welcome_dialog() -> None:
+    st.markdown('''
+        Sana is your personal mental health assistant, here to support you on your journey to better mental well-being.
+        Whether you're feeling anxious, stressed, or just need someone to talk to, Sana is here to listen and help.
+        
+        **Features:**
+        - **24/7 Support:** Chat with Sana anytime, anywhere.
+        - **Personalized Assistance:** Get tailored advice and coping strategies based on your needs.
+        - **Confidential & Secure:** Your privacy is our top priority. All conversations are encrypted and confidential.
+        
+        **Getting Started:**
+        1. Log in using your preferred method (Google, Facebook, etc.).
+        2. Start a conversation by typing how you're feeling or what you'd like to talk about.
+        3. Explore the settings to customize your experience.
+        
+        Remember, you're not alone. Sana is here to support you every step of the way. Let's take this journey together towards better mental health!
+    ''')
+
+
 def main() -> None:
     st.set_page_config(
         page_title='Sana',
@@ -26,6 +52,10 @@ def main() -> None:
         render_login_interface(auth)
 
 def render_main_interface(auth: SanaAuth, chat: SanaChat) -> None:
+    if 'welcome_shown' not in st.session_state:
+        welcome_dialog()
+        st.session_state['welcome_shown'] = True
+
     with st.sidebar:
         st.image('app/static/logo.png', width='stretch')
         st.markdown(

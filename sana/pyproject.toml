@@ -1,0 +1,18 @@
+[project]
+name = "sana-agent"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "aws-opentelemetry-distro>=0.12.1",
+    "bedrock-agentcore[strands-agents]>=0.1.7",
+    "google-api-python-client>=2.184.0",
+    "google-auth-oauthlib>=1.2.2",
+    "nova-act>=2.1.124.0",
+    "pydantic-extra-types>=2.10.6",
+    "pydantic-settings>=2.11.0",
+    "pyyaml>=6.0.3",
+    "strands-agents-tools>=0.2.11",
+    "strands-agents[otel]>=1.12.0",
+]
