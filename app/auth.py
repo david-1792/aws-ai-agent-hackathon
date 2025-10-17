@@ -38,8 +38,9 @@ class SanaAuth:
         self.cookies.set('code_challenge', challenge)
 
         state: str = str(uuid.uuid4())
+        print('OAuth generated state: ', state)
         self.cookies.set('oauth_state', state)
-
+    
         params: dict = {
             'response_type': 'code',
             'client_id': settings.AWS_COGNITO_APP_CLIENT_ID,
@@ -58,7 +59,7 @@ class SanaAuth:
         if not (received_state := query_params.get('state')):
             logger.warning('No state parameter in query params')
             return
-        
+        print('OAuth received state: ', received_state)
         if not (code := query_params.get('code')):
             logger.warning('No code parameter in query params')
             return
@@ -69,11 +70,14 @@ class SanaAuth:
         
         code_verifier: str = self.cookies.get('code_verifier')
         state: str = self.cookies.get('oauth_state')
+        print('OAuth cookie state on callback: ', state)
 
         if not state:
+            print('No state in cookies')
             st.stop()
 
         if received_state != state:
+            print('State mismatch')
             st.stop()
 
         token_url: str = f'{settings.AWS_COGNITO_DOMAIN}/oauth2/token'
@@ -92,7 +96,7 @@ class SanaAuth:
             st.error(f'Failed to exchange token: {response.status_code} - {response.text}')
             return
 
-        self.cookies.set('tokens', response.json())
+        self.cookies.set('tokens', response.json(), max_age=3600)
         self.cookies.remove('code_verifier')
         self.cookies.remove('code_challenge')
         self.cookies.remove('oauth_state')
