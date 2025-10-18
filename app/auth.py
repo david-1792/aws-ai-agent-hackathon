@@ -6,34 +6,26 @@ import uuid
 import jwt
 import os
 
+from time import sleep
+
 from urllib.parse import urlencode
 
 import requests
 import streamlit as st
-from streamlit_cookies_controller import CookieController
+from streamlit_cookies_manager import CookieManager
 
 from app.config import settings
 
 logger = logging.getLogger(__name__)
 
+COOKIE_SLEEP_TIME: float = 0.5
+
 class SanaAuth:
     def __init__(self) -> None:
         self.scopes: list[str] = ['openid', 'email']
-        self.cookies = CookieController('cookies')
-
-        # Common cookie settings
-        is_production = settings.ENVIRONMENT == 'prod'
-        self.oauth_cookie_settings = {
-            'same_site': 'lax',
-            'path': '/',
-            'secure': is_production
-        }
-
-        self.token_cookie_settings = {
-            'same_site': 'strict',
-            'path': '/',
-            'secure': is_production
-        }
+        self.cookies = CookieManager()
+        if not self.cookies.ready():
+            st.stop()
 
     def generate_pkce_pair(self) -> tuple[str, str]:
         verifier: str = base64.urlsafe_b64encode(
@@ -48,14 +40,13 @@ class SanaAuth:
 
     def get_login_url(self) -> str:
         verifier, challenge = self.generate_pkce_pair()
-
-        print('Setting cookies')
-        self.cookies.set('code_verifier', verifier)
-        self.cookies.set('code_challenge', challenge)
-
         state: str = str(uuid.uuid4())
-        self.cookies.set('oauth_state', state)
-        print('finished setting cookies')
+        
+        self.cookies['code_verifier'] = verifier
+        self.cookies['code_challenge'] = challenge
+        self.cookies['oauth_state'] = state
+        self.cookies.save()
+        sleep(COOKIE_SLEEP_TIME)
 
         params: dict = {
             'response_type': 'code',
@@ -75,23 +66,21 @@ class SanaAuth:
             return
 
         query_params: dict = st.query_params.to_dict()
+        sleep(2)
 
         if not (code := query_params.get('code')):
             return
 
         if not (received_state := query_params.get('state')):
             return
-
-        if not (stored_state := self.cookies.get('oauth_state')):
+    
+        if not (stored_state := self.cookies['oauth_state']):
             st.stop()
 
         if received_state != stored_state:
-            self.cookies.remove('oauth_state')
-            st.query_params.clear()
             st.stop()
 
-        if not (code_verifier := self.cookies.get('code_verifier')):
-            st.query_params.clear()
+        if not (code_verifier := self.cookies['code_verifier']):
             st.stop()
 
         token_url: str = f'{settings.AWS_COGNITO_DOMAIN}/oauth2/token'
@@ -110,16 +99,20 @@ class SanaAuth:
             response.raise_for_status()
             tokens = response.json()
 
-            self.cookies.set('tokens', tokens)
-
-            self.cookies.remove('code_verifier')
-            self.cookies.remove('code_challenge')
-            self.cookies.remove('oauth_state')
+            self.cookies['tokens'] = tokens
+            del self.cookies['code_verifier']
+            del self.cookies['code_challenge']
+            del self.cookies['oauth_state']
+            self.cookies.save()
+            sleep(COOKIE_SLEEP_TIME)
 
             st.query_params.clear()
             st.rerun()
-        except Exception:
+        except requests.exceptions.HTTPError as e:
+            print('Error during OAuth callback handling:', e)
             st.stop()
+        except Exception as e:
+            raise e
 
     def is_authenticated(self) -> bool:
         return bool(self.get_tokens())
@@ -146,7 +139,9 @@ class SanaAuth:
         )
     
     def logout(self) -> None:
-        self.cookies.remove('tokens')
+        del self.cookies['tokens']
+        self.cookies.save()
+        sleep(COOKIE_SLEEP_TIME)
 
         if 'session_id' in st.session_state:
             del st.session_state['session_id']

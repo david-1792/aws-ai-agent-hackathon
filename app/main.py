@@ -1,4 +1,5 @@
 import streamlit as st
+import extra_streamlit_components as stx
 from streamlit_js_eval import get_geolocation
 
 from geopy.geocoders import Nominatim
@@ -10,6 +11,10 @@ from app.chat import SanaChat
 from app.config import settings
 
 geolocator = Nominatim(user_agent='sana-app')
+
+def get_manager():
+    cm = stx.CookieManager()
+    return cm
 
 def on_welcome_dialog_dismiss() -> None:
     st.session_state['welcome_shown'] = True
@@ -140,7 +145,6 @@ def render_main_interface(auth: SanaAuth, chat: SanaChat) -> None:
 
 def render_login_interface(auth: SanaAuth) -> None:
     login_url: str = auth.get_login_url()
-    print('redirecting to login url:', login_url)
     st.markdown(
         f'<meta http-equiv="refresh" content="0;url={login_url}">',
         unsafe_allow_html=True,

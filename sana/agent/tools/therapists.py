@@ -107,7 +107,7 @@ def search_therapists(
                 nova.act(
                     'Close any cookie banners, '
                     f'Fill in the form using the {zip_code} zip code and '
-                    f'{f"insurance {insurance}" if insurance else "leaving the insurance field blank. "}'
+                    f'{f"insurance {insurance}. " if insurance else "leaving the insurance field blank. "}'
                     'Press the Find care button to start the search. '
                     'You should finish once you are on the Get matched starting page. '
                 )

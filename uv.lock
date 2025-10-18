@@ -3093,7 +3093,7 @@ dependencies = [
     { name = "geopy" },
     { name = "requests" },
     { name = "streamlit" },
-    { name = "streamlit-cookies-controller" },
+    { name = "streamlit-cookies-manager-v2" },
     { name = "streamlit-js-eval" },
     { name = "tzfpy", extra = ["tzdata"] },
 ]
@@ -3103,7 +3103,7 @@ requires-dist = [
     { name = "geopy", specifier = ">=2.4.1" },
     { name = "requests", specifier = ">=2.32.5" },
     { name = "streamlit", specifier = ">=1.50.0" },
-    { name = "streamlit-cookies-controller", specifier = ">=0.0.4" },
+    { name = "streamlit-cookies-manager-v2", specifier = ">=0.3.1" },
     { name = "streamlit-js-eval", specifier = ">=0.1.7" },
     { name = "tzfpy", extras = ["tzdata"], specifier = ">=1.0.1" },
 ]
@@ -3284,15 +3284,16 @@ wheels = [
 ]
 
 [[package]]
-name = "streamlit-cookies-controller"
-version = "0.0.4"
+name = "streamlit-cookies-manager-v2"
+version = "0.3.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
+    { name = "cryptography" },
     { name = "streamlit" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/b0/c8/7caf505d62faeb8c0f6e6b74b554e1c2b0c3ca46c0a39250445c574a5a18/streamlit-cookies-controller-0.0.4.tar.gz", hash = "sha256:f5df2543de858f1585dcb6e90f58f38aafbf313ee8e237c64663b2d9761583cc", size = 406305 }
+sdist = { url = "https://files.pythonhosted.org/packages/31/34/ca8563a1766f48aa81c9fe5798edf53ae05409e622c21e61b2f022ec6f46/streamlit_cookies_manager_v2-0.3.1.tar.gz", hash = "sha256:ef327bd4b1c74a1c7a77a5769c1fa209adea762fddf9771918efc62306549c84", size = 311308 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/02/c6/3bbdfecf5009943bcb62d37e3fd4b3fe45e87137e449a50e3025170bc9f7/streamlit_cookies_controller-0.0.4-py3-none-any.whl", hash = "sha256:f97fec6acdeee9cb9e16da25c3fc91d404b5b0ddced87c1d9fa9c62f65ca3251", size = 409303 },
+    { url = "https://files.pythonhosted.org/packages/7e/d7/4cc9fead85cc997313e82caa8642693a3c8c00a7721604cf73449c921ab9/streamlit_cookies_manager_v2-0.3.1-py3-none-any.whl", hash = "sha256:8d7f201fe7af42d5a739472cc7998500fe1aedba24b3418fafdc84466b311df5", size = 556776 },
 ]
 
 [[package]]
