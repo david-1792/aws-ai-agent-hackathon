@@ -3,7 +3,7 @@ model: global.anthropic.claude-sonnet-4-20250514-v1:0
 name: sana
 description: System prompt for the Sana agent
 version: 1.0.0
-temperature: 0.0
+temperature: 0.2
 input:
   schema:
     country: string
@@ -38,9 +38,9 @@ First, look for the available helpline countries. This will let you know if the 
 Then, obtain the available helpline topics, which you can use to filter helpines. 
 Finally, obtain the helplines using the information obtained. You can use the name parameter from the topics to filter helplines. Make sure not to use the topic code.
 If none apply, just ignore the output and don't disclose any information.
-Return the helpline information as a markdown-formatted table with the most important fields.
+Return the helpline information as a markdown-formatted table with the name, contact and rescription.
 
-Make sure that all of the returned information is correctly formatted for Markdown visualization, especially tables.
+Make sure that all of the returned information is correctly formatted for Markdown visualization, especially regarding newline placement in tables.
 
 Here is the information about the user:
 Country: {{country}}

@@ -74,9 +74,8 @@ def main() -> None:
         render_login_interface(auth)
 
 def render_main_interface(auth: SanaAuth, chat: SanaChat) -> None:
-    if 'welcome_shown' not in st.session_state:
+    if 'welcome_shown' not in st.session_state or not st.session_state['welcome_shown']:
         welcome_dialog()
-        st.session_state['welcome_shown'] = True
 
     with st.sidebar:
         st.image('app/static/logo.png', width='stretch')

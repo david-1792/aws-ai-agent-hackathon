@@ -6,5 +6,6 @@ tool_map: dict = {
     'search_therapists': 'Searching for therapists...',
     'current_time': 'Retrieving current date...',
     'create_calendar_event': 'Scheduling your appointment...',
-    'get_busy_timeslots': 'Retrieving busy time slots...'
+    'get_busy_timeslots': 'Retrieving busy time slots...',
+    'create_markdown_table': 'Formatting data into a table...',
 }

@@ -75,7 +75,7 @@ class Sana:
         # Basic tools
         from strands_tools.current_time import current_time
         self.tools.append(current_time)
-
+        
         # Therapist search tool
         if settings.AWS_NOVA_ACT_API_KEY:
             from sana.agent.tools.therapists import search_therapists
