@@ -6,6 +6,8 @@ import uuid
 import jwt
 import os
 
+from time import sleep
+
 from urllib.parse import urlencode
 
 import requests
@@ -37,10 +39,6 @@ class SanaAuth:
         self.cookies.set('code_verifier', verifier)
         self.cookies.set('code_challenge', challenge)
 
-        state: str = str(uuid.uuid4())
-        print('OAuth generated state: ', state)
-        self.cookies.set('oauth_state', state)
-    
         params: dict = {
             'response_type': 'code',
             'client_id': settings.AWS_COGNITO_APP_CLIENT_ID,
@@ -48,18 +46,13 @@ class SanaAuth:
             'scope': ' '.join(self.scopes),
             'code_challenge_method': 'S256',
             'code_challenge': challenge,
-            'state': state
         }
 
         return f'{settings.AWS_COGNITO_DOMAIN}/oauth2/authorize?{urlencode(params)}'
 
     def handle_oauth_callback(self) -> None:
         query_params: dict = st.query_params
-
-        if not (received_state := query_params.get('state')):
-            logger.warning('No state parameter in query params')
-            return
-        print('OAuth received state: ', received_state)
+    
         if not (code := query_params.get('code')):
             logger.warning('No code parameter in query params')
             return
@@ -69,16 +62,6 @@ class SanaAuth:
             return
         
         code_verifier: str = self.cookies.get('code_verifier')
-        state: str = self.cookies.get('oauth_state')
-        print('OAuth cookie state on callback: ', state)
-
-        if not state:
-            print('No state in cookies')
-            st.stop()
-
-        if received_state != state:
-            print('State mismatch')
-            st.stop()
 
         token_url: str = f'{settings.AWS_COGNITO_DOMAIN}/oauth2/token'
         data: dict = {
@@ -99,7 +82,7 @@ class SanaAuth:
         self.cookies.set('tokens', response.json(), max_age=3600)
         self.cookies.remove('code_verifier')
         self.cookies.remove('code_challenge')
-        self.cookies.remove('oauth_state')
+
         st.query_params.clear()
 
     def is_authenticated(self) -> bool:
