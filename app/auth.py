@@ -19,13 +19,21 @@ logger = logging.getLogger(__name__)
 class SanaAuth:
     def __init__(self) -> None:
         self.scopes: list[str] = ['openid', 'email']
-        self.cookies = CookieController(
-            'cookies',
-            default_max_age=3600,  # 1 hour default
-            default_same_site='Lax',  # Allow cross-site requests for OAuth
-            default_secure=False,  # Set to True in production with HTTPS
-            default_http_only=False  # Allow JavaScript access if needed
-        )
+        self.cookies = CookieController('cookies')
+
+        # Common cookie settings
+        is_production = settings.ENVIRONMENT == 'prod'
+        self.oauth_cookie_settings = {
+            'same_site': 'lax',  # Allow cross-site requests for OAuth
+            'path': '/',
+            'secure': is_production  # True in production with HTTPS
+        }
+
+        self.token_cookie_settings = {
+            'same_site': 'strict',  # More secure for tokens
+            'path': '/',
+            'secure': is_production  # True in production with HTTPS
+        }
 
     def generate_pkce_pair(self) -> tuple[str, str]:
         verifier: str = base64.urlsafe_b64encode(
@@ -41,13 +49,13 @@ class SanaAuth:
     def get_login_url(self) -> str:
         verifier, challenge = self.generate_pkce_pair()
 
-        # Set cookies with explicit configuration for OAuth flow
-        cookie_max_age = 600  # 10 minutes for OAuth flow
-        self.cookies.set('code_verifier', verifier, max_age=cookie_max_age)
-        self.cookies.set('code_challenge', challenge, max_age=cookie_max_age)
+        # Set cookies for OAuth flow
+        oauth_max_age = 600  # 10 minutes for OAuth flow
+        self.cookies.set('code_verifier', verifier, max_age=oauth_max_age, **self.oauth_cookie_settings)
+        self.cookies.set('code_challenge', challenge, max_age=oauth_max_age, **self.oauth_cookie_settings)
 
         state: str = str(uuid.uuid4())
-        self.cookies.set('oauth_state', state, max_age=cookie_max_age)
+        self.cookies.set('oauth_state', state, max_age=oauth_max_age, **self.oauth_cookie_settings)
 
         params: dict = {
             'response_type': 'code',
@@ -132,7 +140,7 @@ class SanaAuth:
             tokens = response.json()
 
             # Store tokens with proper expiration
-            self.cookies.set('tokens', tokens, max_age=3600)
+            self.cookies.set('tokens', tokens, max_age=3600, **self.token_cookie_settings)
 
             # Clean up OAuth flow cookies
             self.cookies.remove('code_verifier')
