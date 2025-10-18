@@ -139,11 +139,26 @@ def render_main_interface(auth: SanaAuth, chat: SanaChat) -> None:
         chat.process_user_message(prompt, claims, tokens)
 
 def render_login_interface(auth: SanaAuth) -> None:
+    st.title('🧠 Welcome to Sana')
+    st.markdown('Please log in to continue.')
+
+    # Get login URL (this sets the necessary cookies)
     login_url: str = auth.get_login_url()
-    st.markdown(
-        f'<meta http-equiv="refresh" content="0;url={login_url}">',
-        unsafe_allow_html=True,
-    )
+
+    # Show login button first, then redirect
+    if st.button('Login with Cognito', type='primary', use_container_width=True):
+        st.markdown(
+            f'<meta http-equiv="refresh" content="1;url={login_url}">',
+            unsafe_allow_html=True,
+        )
+        st.info('Redirecting to login...')
+    else:
+        # Auto-redirect after a short delay to ensure cookies are set
+        st.markdown(
+            f'<meta http-equiv="refresh" content="2;url={login_url}">',
+            unsafe_allow_html=True,
+        )
+        st.info('Redirecting to login in 2 seconds...')
 
 if __name__ == '__main__':
     main()
