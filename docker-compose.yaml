@@ -1,9 +1,0 @@
-services:
-  agent:
-    build:
-      context: .
-      dockerfile: sana/Dockerfile
-    env_file:
-      - sana/.env
-    ports:
-      - 8080:8080
