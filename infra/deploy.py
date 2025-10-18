@@ -77,14 +77,7 @@ def main() -> None:
                         '/summaries/{actorId}/{sessionId}',
                     ]
                 },
-            },
-            {
-                'userPreferenceMemoryStrategy': {
-                    'name': 'preferences',
-                    'description': 'Stores the user preferences',
-                    'namespaces': ['/preferences/{actorId}']
-                }
-            },
+            }
         ]
     )
 

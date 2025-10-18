@@ -126,8 +126,7 @@ class Sana:
         
         # Long-term memory configuration
         namespace_config: dict = {
-            '/summary/{actorId}/{sessionId}': RetrievalConfig(top_k=3),
-            '/preferences/{actorId}': RetrievalConfig(top_k=3),
+            '/summary/{actorId}/{sessionId}': RetrievalConfig(top_k=3)
         }
 
         memory_config = AgentCoreMemoryConfig(
