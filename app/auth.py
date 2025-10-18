@@ -99,7 +99,7 @@ class SanaAuth:
             response.raise_for_status()
             tokens = response.json()
 
-            self.cookies['tokens'] = tokens
+            self.cookies['tokens'] = json.dumps(tokens)
             del self.cookies['code_verifier']
             del self.cookies['code_challenge']
             del self.cookies['oauth_state']
