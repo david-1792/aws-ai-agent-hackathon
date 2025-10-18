@@ -106,8 +106,10 @@ def search_therapists(
             try:
                 nova.act(
                     'Close any cookie banners, '
-                    f'search for therapists in the {zip_code} zip code '
-                    f'{f"using insurance {insurance}" if insurance else "leaving the insurance field blank. "}'
+                    f'Fill in the form using the {zip_code} zip code and '
+                    f'{f"insurance {insurance}" if insurance else "leaving the insurance field blank. "}'
+                    'Press the Find care button to start the search. '
+                    'You should finish once you are on the Get matched starting page. '
                 )
                 nova.act(
                     'You will complete a multi-step form to filter therapists. Select next to continue to the next step. '
@@ -138,6 +140,7 @@ def search_therapists(
 
                     if not result.matches_schema:
                         logger.error(f'Invalid schema returned from Nova Act: {result}')
+                        nova.act("Scroll down the page")
                         continue
 
                     therapist_list = TherapistList.model_validate(result.parsed_response)

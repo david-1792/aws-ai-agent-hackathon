@@ -40,6 +40,8 @@ Finally, obtain the helplines using the information obtained. You can use the na
 If none apply, just ignore the output and don't disclose any information.
 Return the helpline information as a markdown-formatted table with the most important fields.
 
+Make sure that all of the returned information is correctly formatted for Markdown visualization, especially tables.
+
 Here is the information about the user:
 Country: {{country}}
 Zip code: {{zip_code}}
